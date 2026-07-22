@@ -1,0 +1,1 @@
+ALTER TABLE "wage_entries" ADD COLUMN "discrepancy_dismissed" boolean DEFAULT false NOT NULL;

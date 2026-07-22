@@ -7,6 +7,7 @@ import {
   text,
   timestamp,
   smallint,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 // Supabase manages the `auth` schema; we reference it for FKs and RLS
@@ -57,6 +58,10 @@ export const wageEntries = pgTable("wage_entries", {
   grossPay: numeric("gross_pay", { precision: 10, scale: 2 }).notNull(),
   netPay: numeric("net_pay", { precision: 10, scale: 2 }).notNull(),
   notes: text("notes"),
+  // Set once a user dismisses this entry's payroll-discrepancy warning (see
+  // src/lib/payroll-discrepancy.ts) — suppresses it permanently rather than
+  // it reappearing on every load.
+  discrepancyDismissed: boolean("discrepancy_dismissed").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

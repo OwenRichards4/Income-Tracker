@@ -22,6 +22,7 @@ function toWageEntry(row: {
   netPay: string;
   notes: string | null;
   createdAt: Date;
+  discrepancyDismissed: boolean;
 }): WageEntry {
   return {
     id: row.id,
@@ -31,6 +32,7 @@ function toWageEntry(row: {
     netPay: Number(row.netPay),
     notes: row.notes,
     createdAt: row.createdAt.toISOString(),
+    discrepancyDismissed: row.discrepancyDismissed,
   };
 }
 
@@ -84,6 +86,20 @@ export async function updateWageEntry(id: string, input: WageEntryInput): Promis
       netPay: String(input.netPay),
       notes: input.notes,
     })
+    .where(and(eq(wageEntries.id, id), eq(wageEntries.userId, userId)))
+    .returning();
+
+  if (!row) throw new Error("Paycheck not found");
+  return toWageEntry(row);
+}
+
+export async function dismissDiscrepancy(id: string): Promise<WageEntry> {
+  const userId = await getCurrentUserId();
+  if (!userId) throw new Error("Not signed in");
+
+  const [row] = await db
+    .update(wageEntries)
+    .set({ discrepancyDismissed: true })
     .where(and(eq(wageEntries.id, id), eq(wageEntries.userId, userId)))
     .returning();
 

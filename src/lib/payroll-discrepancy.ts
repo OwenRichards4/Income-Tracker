@@ -34,6 +34,8 @@ export function detectPayrollDiscrepancies(
   const results: PayrollDiscrepancy[] = [];
 
   for (const entry of wageEntries) {
+    if (entry.discrepancyDismissed) continue;
+
     const periodShifts = shifts.filter(
       (s) => s.date >= entry.periodStart && s.date <= entry.periodEnd,
     );

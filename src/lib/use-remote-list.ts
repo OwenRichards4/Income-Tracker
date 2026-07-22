@@ -116,6 +116,21 @@ export function useRemoteList<T extends { id: string }, Input>(
     [key],
   );
 
+  // Escape hatch for one-off mutations that don't fit the create/update/
+  // remove shape (e.g. dismissing a payroll warning) — runs `fn`, then
+  // patches its returned row into the shared store the same way `update`
+  // does, so every subscribed component reflects it immediately.
+  const mutate = useCallback(
+    async (fn: () => Promise<T>) => {
+      const updated = await fn();
+      const store = getStore<T>(key);
+      store.items = store.items.map((item) => (item.id === updated.id ? updated : item));
+      notify(store);
+      return updated;
+    },
+    [key],
+  );
+
   const remove = useCallback(
     async (id: string) => {
       await actions.remove(id);
@@ -127,5 +142,5 @@ export function useRemoteList<T extends { id: string }, Input>(
     [key],
   );
 
-  return { items, loaded, add, update, remove };
+  return { items, loaded, add, update, remove, mutate };
 }

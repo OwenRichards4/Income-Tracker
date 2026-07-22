@@ -5,6 +5,7 @@ import {
   getWageEntries,
   createWageEntry,
   updateWageEntry as updateWageEntryAction,
+  dismissDiscrepancy as dismissDiscrepancyAction,
   deleteWageEntry,
   type WageEntryInput,
 } from "@/app/paychecks/actions";
@@ -19,6 +20,7 @@ export function useWageEntries() {
     add,
     update,
     remove,
+    mutate,
   } = useRemoteList<WageEntry, WageEntryInput>(KEY, {
     fetchAll: getWageEntries,
     create: createWageEntry,
@@ -32,5 +34,6 @@ export function useWageEntries() {
     addWageEntry: (entry: WageEntryInput) => add(entry),
     updateWageEntry: (id: string, input: WageEntryInput) => update(id, input),
     removeWageEntry: remove,
+    dismissDiscrepancy: (id: string) => mutate(() => dismissDiscrepancyAction(id)),
   };
 }

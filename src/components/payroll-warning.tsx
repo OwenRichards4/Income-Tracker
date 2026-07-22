@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { TriangleAlert } from "lucide-react";
 import { useShifts } from "@/lib/use-shifts";
 import { useWageEntries } from "@/lib/use-wage-entries";
@@ -22,15 +22,28 @@ function formatShortDate(iso: string): string {
 }
 
 export function PayrollWarning() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [dismissingId, setDismissingId] = useState<string | null>(null);
   const { shifts, loaded: shiftsLoaded } = useShifts();
-  const { wageEntries, loaded: wageEntriesLoaded } = useWageEntries();
+  const { wageEntries, loaded: wageEntriesLoaded, dismissDiscrepancy } = useWageEntries();
   const { roles, loaded: rolesLoaded } = useRoles();
 
   if (!shiftsLoaded || !wageEntriesLoaded || !rolesLoaded) return null;
 
   const discrepancies = detectPayrollDiscrepancies(wageEntries, shifts, roles);
   if (discrepancies.length === 0) return null;
+
+  async function handleDismiss(event: React.MouseEvent, wageEntryId: string) {
+    event.stopPropagation();
+    setDismissingId(wageEntryId);
+    try {
+      await dismissDiscrepancy(wageEntryId);
+    } catch (error) {
+      console.error("Failed to dismiss payroll warning:", error);
+      setDismissingId(null);
+    }
+  }
 
   return (
     <div className="relative">
@@ -61,11 +74,17 @@ export function PayrollWarning() {
             </p>
             <ul className="mt-2 space-y-1">
               {discrepancies.map((d) => (
-                <li key={d.wageEntryId}>
-                  <Link
-                    href={`/paychecks/${d.wageEntryId}/edit`}
-                    onClick={() => setOpen(false)}
-                    className="block rounded-lg px-2 py-2 text-sm transition-colors hover:bg-muted"
+                <li
+                  key={d.wageEntryId}
+                  className="flex items-start gap-1 rounded-lg px-1 py-1 transition-colors hover:bg-muted"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      router.push(`/paychecks/${d.wageEntryId}/edit`);
+                      setOpen(false);
+                    }}
+                    className="min-w-0 flex-1 cursor-pointer px-1 py-1 text-left text-sm"
                   >
                     <p className="font-medium text-foreground">
                       {formatShortDate(d.periodStart)} – {formatShortDate(d.periodEnd)}
@@ -74,7 +93,15 @@ export function PayrollWarning() {
                       Expected ~${d.expectedGross.toFixed(2)} from hours, got $
                       {d.actualGross.toFixed(2)} ({d.percentDiff}% off)
                     </p>
-                  </Link>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(event) => handleDismiss(event, d.wageEntryId)}
+                    disabled={dismissingId === d.wageEntryId}
+                    className="shrink-0 cursor-pointer whitespace-nowrap px-1 py-1 text-xs font-medium text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {dismissingId === d.wageEntryId ? "…" : "Dismiss"}
+                  </button>
                 </li>
               ))}
             </ul>

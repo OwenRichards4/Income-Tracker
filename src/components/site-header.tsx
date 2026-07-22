@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { LogOut, Plus, Settings } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import { PayrollWarning } from "@/components/payroll-warning";
-import { signOut } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/server";
 
 export async function SiteHeader() {
@@ -44,18 +43,7 @@ export async function SiteHeader() {
               </Link>
             </>
           )}
-          {user ? (
-            <form action={signOut}>
-              <button
-                type="submit"
-                aria-label={`Sign out (${user.email})`}
-                title={user.email ?? undefined}
-                className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <LogOut className="size-5" />
-              </button>
-            </form>
-          ) : (
+          {!user && (
             <Link
               href="/login"
               className="inline-flex cursor-pointer items-center rounded-full border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"

@@ -25,4 +25,8 @@ export interface WageEntry {
   notes: string | null;
   // See Shift.createdAt.
   createdAt: string;
+  // Once true, this entry's payroll-discrepancy warning (see
+  // payroll-discrepancy.ts) stays suppressed permanently instead of
+  // reappearing on every load.
+  discrepancyDismissed: boolean;
 }
