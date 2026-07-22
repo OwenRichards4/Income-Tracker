@@ -1,7 +1,7 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
-import { db } from "@/db";
+import { db, withDbRetry } from "@/db";
 import { shifts, roles } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
 import type { Shift } from "@/lib/local-data";
@@ -51,19 +51,21 @@ export async function getShifts(): Promise<Shift[]> {
   const userId = await getCurrentUserId();
   if (!userId) return [];
 
-  const rows = await db
-    .select({
-      id: shifts.id,
-      date: shifts.date,
-      hoursWorked: shifts.hoursWorked,
-      tipsAmount: shifts.tipsAmount,
-      notes: shifts.notes,
-      createdAt: shifts.createdAt,
-      roleName: roles.name,
-    })
-    .from(shifts)
-    .leftJoin(roles, eq(shifts.roleId, roles.id))
-    .where(eq(shifts.userId, userId));
+  const rows = await withDbRetry(() =>
+    db
+      .select({
+        id: shifts.id,
+        date: shifts.date,
+        hoursWorked: shifts.hoursWorked,
+        tipsAmount: shifts.tipsAmount,
+        notes: shifts.notes,
+        createdAt: shifts.createdAt,
+        roleName: roles.name,
+      })
+      .from(shifts)
+      .leftJoin(roles, eq(shifts.roleId, roles.id))
+      .where(eq(shifts.userId, userId)),
+  );
 
   return rows.map(toShift);
 }

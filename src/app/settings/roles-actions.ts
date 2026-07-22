@@ -1,7 +1,7 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
-import { db } from "@/db";
+import { db, withDbRetry } from "@/db";
 import { roles } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
 
@@ -27,7 +27,7 @@ export async function getRoles(): Promise<RoleDTO[]> {
   const userId = await getCurrentUserId();
   if (!userId) return [];
 
-  const rows = await db.select().from(roles).where(eq(roles.userId, userId));
+  const rows = await withDbRetry(() => db.select().from(roles).where(eq(roles.userId, userId)));
   return rows.map(toRole);
 }
 
@@ -40,6 +40,24 @@ export async function createRole(name: string, baseHourlyRate: number): Promise<
     .values({ userId, name, baseHourlyRate: String(baseHourlyRate) })
     .returning();
 
+  return toRole(row);
+}
+
+export async function updateRole(
+  id: string,
+  name: string,
+  baseHourlyRate: number,
+): Promise<RoleDTO> {
+  const userId = await getCurrentUserId();
+  if (!userId) throw new Error("Not signed in");
+
+  const [row] = await db
+    .update(roles)
+    .set({ name, baseHourlyRate: String(baseHourlyRate) })
+    .where(and(eq(roles.id, id), eq(roles.userId, userId)))
+    .returning();
+
+  if (!row) throw new Error("Role not found");
   return toRole(row);
 }
 

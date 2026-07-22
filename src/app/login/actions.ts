@@ -1,6 +1,5 @@
 "use server";
 
-import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 
 export interface SendMagicLinkState {
@@ -17,18 +16,16 @@ export async function sendMagicLink(
     return { status: "error", message: "Enter your email." };
   }
 
-  // Carries the page the user was trying to reach through to
-  // auth/callback/route.ts, which reads it back off this same query string.
-  const next = String(formData.get("next") ?? "");
-  const callbackUrl = next ? `/auth/callback?next=${encodeURIComponent(next)}` : "/auth/callback";
-
-  // Supabase emails a link back to this origin; exchanged for a session in
-  // auth/callback/route.ts.
-  const origin = (await headers()).get("origin");
+  // Supabase emails a link back to this URL; exchanged for a session in
+  // auth/callback/route.ts. Deliberately an explicit env var rather than the
+  // request's Origin header — on Vercel that header didn't resolve to the
+  // deployed URL the way it does in local dev, silently falling back to
+  // whatever Site URL is configured in Supabase instead.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${origin}${callbackUrl}` },
+    options: { emailRedirectTo: `${siteUrl}/auth/callback` },
   });
 
   if (error) {

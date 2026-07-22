@@ -163,8 +163,6 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <MetricCard label="Total income" value={`$${totalTips.toFixed(2)}`} delta={delta} />
-        <MetricCard label="Est. tax owed" value={`$${tax.totalOwed.toFixed(2)}`} />
         <MetricCard
           label="Take-home estimate"
           value={`$${tax.takeHomeEstimate.toFixed(2)}`}
@@ -172,6 +170,17 @@ export function Dashboard() {
         <MetricCard
           label="Effective rate"
           value={totalHours > 0 ? `$${effectiveRate.toFixed(2)}/hr` : "—"}
+        />
+        <MetricCard
+          label="Total income"
+          value={`$${totalTips.toFixed(2)}`}
+          tone="positive"
+          delta={delta}
+        />
+        <MetricCard
+          label="Est. tax owed"
+          value={`$${tax.totalOwed.toFixed(2)}`}
+          tone="negative"
         />
       </div>
 

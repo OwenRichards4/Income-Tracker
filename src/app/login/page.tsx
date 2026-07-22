@@ -3,15 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { LoginForm } from "./login-form";
 
 interface LoginPageProps {
-  searchParams: Promise<{ error?: string; next?: string }>;
-}
-
-// Only allow relative in-app paths — a `next` value like "//evil.com" or
-// "https://evil.com" would otherwise let this redirect send someone off-site
-// after they authenticate.
-function sanitizeNext(next: string | undefined): string | null {
-  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
-  return next;
+  searchParams: Promise<{ error?: string }>;
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -21,7 +13,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   } = await supabase.auth.getUser();
   if (user) redirect("/");
 
-  const { error, next } = await searchParams;
+  const { error } = await searchParams;
 
   return (
     <div className="mx-auto w-full max-w-sm flex-1 px-6 py-10">
@@ -34,7 +26,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           That sign-in link didn&apos;t work — it may have expired. Try again below.
         </p>
       )}
-      <LoginForm next={sanitizeNext(next)} />
+      <LoginForm />
     </div>
   );
 }

@@ -38,6 +38,14 @@ function subtractOneMonth(date: Date): Date {
   return shiftMonths(date, -1);
 }
 
+function startOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function endOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+}
+
 function startOfYear(date: Date): Date {
   return new Date(date.getFullYear(), 0, 1);
 }
@@ -61,11 +69,9 @@ export function getPeriodRange(
         end: formatDateInputValue(endOfWeek(ref, weekStartDay)),
       };
     case "month":
-      // Rolling 1-month window ending today, not the calendar month — so
-      // it doesn't reset to near-empty on the 1st.
       return {
-        start: formatDateInputValue(subtractOneMonth(ref)),
-        end: formatDateInputValue(ref),
+        start: formatDateInputValue(startOfMonth(ref)),
+        end: formatDateInputValue(endOfMonth(ref)),
       };
     case "year":
       return {
@@ -94,13 +100,8 @@ export function getPreviousPeriodRange(
       return getPeriodRange("week", formatDateInputValue(prevRef), weekStartDay);
     }
     case "month": {
-      // The prior rolling month, immediately before the current window:
-      // two months back through one month back.
-      const prevEnd = subtractOneMonth(ref);
-      return {
-        start: formatDateInputValue(subtractOneMonth(prevEnd)),
-        end: formatDateInputValue(prevEnd),
-      };
+      const prevRef = subtractOneMonth(ref);
+      return getPeriodRange("month", formatDateInputValue(prevRef), weekStartDay);
     }
     case "year": {
       const prevRef = new Date(ref.getFullYear() - 1, 0, 1);

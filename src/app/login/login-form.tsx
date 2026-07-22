@@ -7,13 +7,7 @@ import { sendMagicLink, type SendMagicLinkState } from "./actions";
 
 const initialState: SendMagicLinkState = { status: "idle" };
 
-interface LoginFormProps {
-  // Where to send the user after they sign in — the page they were trying
-  // to reach before being redirected here, if any.
-  next?: string | null;
-}
-
-export function LoginForm({ next }: LoginFormProps) {
+export function LoginForm() {
   const [state, formAction, pending] = useActionState(sendMagicLink, initialState);
 
   if (state.status === "sent") {
@@ -30,7 +24,6 @@ export function LoginForm({ next }: LoginFormProps) {
 
   return (
     <form action={formAction} className="mt-8 space-y-5">
-      {next && <input type="hidden" name="next" value={next} />}
       <div>
         <label htmlFor="email" className="text-sm font-medium">
           Email

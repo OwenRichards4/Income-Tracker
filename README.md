@@ -14,6 +14,7 @@ Shift and income logging PWA with tax-estimate tooling. See `bartender-tracker-p
 2. Copy `.env.example` to `.env.local` and fill in:
    - `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Project Settings → API
    - `DATABASE_URL` — Project Settings → Database → use the pooled **Transaction** connection string
+   - `NEXT_PUBLIC_SITE_URL` — `http://localhost:3000` locally; on Vercel, set this to the deployed URL in the project's env vars (used to build the magic-link redirect — see step 5)
 3. Install dependencies and push the schema:
    ```bash
    npm install
@@ -25,7 +26,7 @@ Shift and income logging PWA with tax-estimate tooling. See `bartender-tracker-p
    exists. `src/db/schema.ts` still declares a stub `authUsers` table so Drizzle can type the
    foreign keys; only the FK constraints from the migration should touch it, never a `CREATE`.
 4. In the Supabase SQL editor, run `supabase/policies.sql` — enables Row-Level Security on `roles`, `shifts`, `wage_entries`, and `settings`, scoping each to `auth.uid() = user_id`. Do this before storing real data.
-5. In the Supabase dashboard, confirm **Email** is enabled under Authentication → Providers (it is by default) — sign-in uses passwordless magic links, not passwords.
+5. In the Supabase dashboard, confirm **Email** is enabled under Authentication → Providers (it is by default) — sign-in uses passwordless magic links, not passwords. Under Authentication → URL Configuration, set **Site URL** and add each deployment's URL (including `NEXT_PUBLIC_SITE_URL`'s value) to **Redirect URLs** as `<url>/**`, or magic links won't be allowed to redirect back.
 6. `npm run dev` and open [http://localhost:3000](http://localhost:3000).
 
 ## Project layout

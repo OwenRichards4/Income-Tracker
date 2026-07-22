@@ -1,7 +1,7 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
-import { db } from "@/db";
+import { db, withDbRetry } from "@/db";
 import { wageEntries } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
 import type { WageEntry } from "@/lib/local-data";
@@ -38,7 +38,9 @@ export async function getWageEntries(): Promise<WageEntry[]> {
   const userId = await getCurrentUserId();
   if (!userId) return [];
 
-  const rows = await db.select().from(wageEntries).where(eq(wageEntries.userId, userId));
+  const rows = await withDbRetry(() =>
+    db.select().from(wageEntries).where(eq(wageEntries.userId, userId)),
+  );
   return rows.map(toWageEntry);
 }
 
