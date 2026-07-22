@@ -22,7 +22,8 @@ import { estimateTaxOwed } from "@/lib/tax/estimate";
 import { MetricCard } from "./metric-card";
 import { WeekdayBarChart } from "./weekday-bar-chart";
 import { TipsTrendChart } from "./tips-trend-chart";
-import { RecentEntriesTable } from "./recent-entries-table";
+import { RecentShiftsTable } from "./recent-shifts-table";
+import { RecentPaychecksTable } from "./recent-paychecks-table";
 
 const PERIODS: { key: Period; label: string }[] = [
   { key: "week", label: "Week" },
@@ -223,12 +224,18 @@ export function Dashboard() {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-5">
-        <h2 className="text-sm font-medium text-foreground">Recent entries</h2>
+        <h2 className="text-sm font-medium text-foreground">Recent tips</h2>
         <div className="mt-4">
-          <RecentEntriesTable shifts={shifts} wageEntries={wageEntries} />
+          <RecentShiftsTable shifts={shifts} />
         </div>
       </div>
 
+      <div className="rounded-xl border border-border bg-card p-5">
+        <h2 className="text-sm font-medium text-foreground">Recent paychecks</h2>
+        <div className="mt-4">
+          <RecentPaychecksTable wageEntries={wageEntries} />
+        </div>
+      </div>
     </div>
   );
 }
