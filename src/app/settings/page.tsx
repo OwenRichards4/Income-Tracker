@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { DEFAULT_THEME, isTheme, THEME_COOKIE } from "@/lib/theme";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { RolesManager } from "@/components/roles-manager";
+import { TaxSettingsManager } from "@/components/tax-settings-manager";
+import { DeleteAllDataButton } from "@/components/delete-all-data-button";
 import { signOut } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/server";
 
@@ -48,6 +50,17 @@ export default async function SettingsPage() {
       </section>
 
       <section className="mt-6 rounded-xl border border-border bg-card p-6">
+        <h2 className="text-lg font-medium">Tax estimate</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Flat-rate estimate, not full bracket modeling — good enough for
+          planning ahead, not a substitute for a real tax filing.
+        </p>
+        <div className="mt-4">
+          <TaxSettingsManager />
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-xl border border-border bg-card p-6">
         <h2 className="text-lg font-medium">Account</h2>
         {user?.email && (
           <p className="mt-1 text-sm text-muted-foreground">
@@ -62,6 +75,9 @@ export default async function SettingsPage() {
             Sign out
           </button>
         </form>
+        <div className="mt-4 border-t border-border pt-4">
+          <DeleteAllDataButton />
+        </div>
       </section>
     </div>
   );

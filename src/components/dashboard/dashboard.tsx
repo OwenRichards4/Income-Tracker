@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useShifts } from "@/lib/use-shifts";
 import { useWageEntries } from "@/lib/use-wage-entries";
+import { useTaxSettings } from "@/lib/use-tax-settings";
 import {
   type Period,
   getPeriodRange,
@@ -39,10 +40,6 @@ const PERIOD_NOUN: Record<Period, string> = {
   all: "",
 };
 
-// Placeholders until Settings/auth are real and these come from the
-// account's `settings` row instead.
-const FICA_RATE = 0.0765;
-const ESTIMATED_INCOME_TAX_RATE = 0.12;
 const WEEK_START_DAY = 1; // Monday — the actual work week runs Mon-Sun
 
 export function Dashboard() {
@@ -61,8 +58,9 @@ export function Dashboard() {
 
   const { shifts: allShifts, loaded: shiftsLoaded } = useShifts();
   const { wageEntries: allWageEntries, loaded: wageEntriesLoaded } = useWageEntries();
+  const { taxSettings, loaded: taxSettingsLoaded } = useTaxSettings();
 
-  if (!todayISO || !shiftsLoaded || !wageEntriesLoaded) {
+  if (!todayISO || !shiftsLoaded || !wageEntriesLoaded || !taxSettingsLoaded || !taxSettings) {
     return (
       <div className="mt-6 h-[420px] animate-pulse rounded-xl border border-border bg-card" />
     );
@@ -81,8 +79,8 @@ export function Dashboard() {
   const totalTips = sumTips(shifts);
   const tax = estimateTaxOwed({
     totalTips,
-    ficaRate: FICA_RATE,
-    estimatedIncomeTaxRate: ESTIMATED_INCOME_TAX_RATE,
+    ficaRate: taxSettings.ficaRate,
+    estimatedIncomeTaxRate: taxSettings.estimatedIncomeTaxRate,
   });
   const totalHours = shifts.reduce((sum, s) => sum + s.hoursWorked, 0);
   const effectiveRate = totalHours > 0 ? totalTips / totalHours : 0;
