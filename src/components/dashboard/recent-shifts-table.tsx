@@ -1,6 +1,6 @@
 "use client";
 
-import type { Shift } from "@/lib/local-data";
+import { GENERAL_SHIFT_LABEL, SHIFT_TYPE_LABELS, type Shift } from "@/lib/local-data";
 import { parseLocalDateString } from "@/lib/shift-entry";
 import { EntriesTable } from "./entries-table";
 
@@ -42,6 +42,14 @@ export function RecentShiftsTable({ shifts }: RecentShiftsTableProps) {
           header: "Hours",
           render: (s) => (
             <span className="text-muted-foreground">{s.hoursWorked} hr</span>
+          ),
+        },
+        {
+          header: "Shift type",
+          render: (s) => (
+            <span className="text-muted-foreground">
+              {s.shiftType ? SHIFT_TYPE_LABELS[s.shiftType] : GENERAL_SHIFT_LABEL}
+            </span>
           ),
         },
         {

@@ -14,7 +14,10 @@ import {
 // Fixed, app-defined categories — unlike roles, not something a user manages
 // themselves, so a Postgres enum (not a lookup table) enforces valid values
 // at the DB level. Order here is just declaration order; the app controls
-// display order separately.
+// display order separately. Shifts with no shift type (the column is
+// nullable) are treated as a "General" bucket by the app — e.g. servers,
+// whose hours don't line up with any of these three at all, so forcing a
+// choice would be pure friction with no real signal.
 export const shiftTypeEnum = pgEnum("shift_type", ["opening", "bd", "closing"]);
 
 // Supabase manages the `auth` schema; we reference it for FKs and RLS

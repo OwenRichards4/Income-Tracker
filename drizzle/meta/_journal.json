@@ -22,6 +22,20 @@
       "when": 1784924616811,
       "tag": "0002_thin_kylun",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1784926090281,
+      "tag": "0003_misty_the_phantom",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1784926562538,
+      "tag": "0004_worthless_sage",
+      "breakpoints": true
     }
   ]
 }

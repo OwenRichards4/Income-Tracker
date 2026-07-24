@@ -16,6 +16,18 @@
   --muted-foreground: #71717a;
   --accent: #dc2626;
   --accent-foreground: #ffffff;
+  /* Categorical chart series (weekday-by-shift-type chart) — first three
+     slots of the validated default categorical palette (dataviz skill),
+     re-validated against this app's own card surfaces incl. --pairs all,
+     since a grouped bar chart puts every slot in visual contact with every
+     other. "General" (unclassified shifts) deliberately isn't a 4th hue —
+     a 4th categorical slot fails the all-pairs CVD floor per the palette's
+     own docs — so it's a neutral gray instead, which also reads correctly
+     as "not a real category" rather than impersonating one. */
+  --series-opening: #2a78d6;
+  --series-bd: #eb6834;
+  --series-closing: #1baf7a;
+  --series-general: #78828e;
 }
 
 .dark {
@@ -30,6 +42,10 @@
   --muted-foreground: #94a3b8;
   --accent: #ef4444;
   --accent-foreground: #ffffff;
+  --series-opening: #3987e5;
+  --series-bd: #d95926;
+  --series-closing: #199e70;
+  --series-general: #78828e;
 }
 
 @theme inline {
@@ -41,6 +57,10 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-series-opening: var(--series-opening);
+  --color-series-bd: var(--series-bd);
+  --color-series-closing: var(--series-closing);
+  --color-series-general: var(--series-general);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

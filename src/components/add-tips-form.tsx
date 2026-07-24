@@ -16,19 +16,15 @@ import { RequiredMark } from "@/components/required-mark";
 import { PillSelect } from "@/components/pill-select";
 import { useRoles } from "@/lib/use-roles";
 import { useShifts } from "@/lib/use-shifts";
-import type { Shift, ShiftType } from "@/lib/local-data";
+import { SHIFT_TYPE_LABELS, type Shift, type ShiftType } from "@/lib/local-data";
 
 // Purely cosmetic — long enough that the spinner reads as "doing something"
 // instead of a flicker, short enough not to feel like a real wait.
 const SAVE_REDIRECT_DELAY_MS = 600;
 
-// Display order — distinct from declaration order in the DB enum, which is
-// just alphabetical-ish and not meaningful.
-const SHIFT_TYPE_OPTIONS: { value: ShiftType; label: string }[] = [
-  { value: "opening", label: "Opening" },
-  { value: "bd", label: "BD" },
-  { value: "closing", label: "Closing" },
-];
+const SHIFT_TYPE_OPTIONS = (Object.entries(SHIFT_TYPE_LABELS) as [ShiftType, string][]).map(
+  ([value, label]) => ({ value, label }),
+);
 
 interface AddTipsFormProps {
   // Present when editing an existing shift rather than logging a new one.
@@ -93,7 +89,6 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
     minutesNum >= 0 &&
     minutesNum <= 59;
   const dateValid = date !== "";
-  const shiftTypeValid = shiftType !== "";
 
   const weekdayLabel = getWeekdayLabel(date);
   const totalHours = hoursMinutesToDecimal(hoursNum, minutesNum);
@@ -104,14 +99,14 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
     if (submitting) return;
     setAttempted(true);
     setError(null);
-    if (!amountValid || !durationValid || !dateValid || !shiftTypeValid) return;
+    if (!amountValid || !durationValid || !dateValid) return;
 
     const payload = {
       date,
       hoursWorked: totalHours,
       tipsAmount: Math.round(amountNum * 100) / 100,
       role: roles.find((r) => r.id === roleId)?.name ?? null,
-      shiftType,
+      shiftType: shiftType || null,
       notes: notes.trim() === "" ? null : notes.trim(),
     };
 
@@ -173,7 +168,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
         )}
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         <div className="w-[35%]">
           <span className="text-sm font-medium">
             Hours worked
@@ -191,11 +186,11 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
                 placeholder="0"
                 value={hours}
                 onChange={(event) => setHours(event.target.value)}
-                className={`${inputClass} px-2 pr-7`}
+                className={`${inputClass} px-2 pr-9`}
                 aria-label="Hours"
                 aria-required="true"
               />
-              <span className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                 hr
               </span>
             </div>
@@ -210,11 +205,11 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
                 placeholder="0"
                 value={minutes}
                 onChange={(event) => setMinutes(event.target.value)}
-                className={`${inputClass} px-2 pr-8`}
+                className={`${inputClass} px-2 pr-10`}
                 aria-label="Minutes"
                 aria-required="true"
               />
-              <span className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                 min
               </span>
             </div>
@@ -245,20 +240,21 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
 
       <div>
         <span className="text-sm font-medium">
-          Shift type
-          <RequiredMark />
+          Shift type <span className="text-muted-foreground">(optional)</span>
         </span>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Leave unset for shifts that don&apos;t fit these windows — shown as
+          &quot;General&quot;.
+        </p>
         <div className="mt-1.5">
           <PillSelect
             ariaLabel="Shift type"
             options={SHIFT_TYPE_OPTIONS}
             value={shiftType || null}
             onChange={(value) => setShiftType((value as ShiftType) ?? "")}
+            allowDeselect
           />
         </div>
-        {attempted && !shiftTypeValid && (
-          <p className="mt-1 text-xs text-accent">Pick a shift type.</p>
-        )}
       </div>
 
       <div>

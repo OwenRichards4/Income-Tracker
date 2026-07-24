@@ -14,7 +14,7 @@ import {
   filterShiftsByRange,
   filterWageEntriesByRange,
   sumTips,
-  averageTipsByWeekday,
+  averageTipsByWeekdayAndShiftType,
   weeklyTipsPerHourTrend,
   sumTipsByRole,
 } from "@/lib/dashboard";
@@ -42,6 +42,16 @@ const PERIOD_NOUN: Record<Period, string> = {
 
 const WEEK_START_DAY = 1; // Monday — the actual work week runs Mon-Sun
 
+// sessionStorage (not localStorage) deliberately — persists across
+// navigating away to edit an entry and back, so that doesn't reset the view,
+// but still resets to the "month" default on a fresh tab/visit rather than
+// following you around forever.
+const PERIOD_STORAGE_KEY = "dashboard-period";
+
+function isPeriod(value: string | null): value is Period {
+  return value === "week" || value === "month" || value === "year" || value === "all";
+}
+
 export function Dashboard() {
   // Deferred to the client's local clock — see the same pattern (and the
   // reason for it) in AddTipsForm.
@@ -51,7 +61,19 @@ export function Dashboard() {
     setTodayISO(formatDateInputValue(new Date()));
   }, []);
 
-  const [period, setPeriod] = useState<Period>("month");
+  const [period, setPeriodState] = useState<Period>("month");
+  useEffect(() => {
+    const stored = sessionStorage.getItem(PERIOD_STORAGE_KEY);
+    if (isPeriod(stored)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPeriodState(stored);
+    }
+  }, []);
+
+  function setPeriod(next: Period) {
+    setPeriodState(next);
+    sessionStorage.setItem(PERIOD_STORAGE_KEY, next);
+  }
   // null means "viewing the present" — falls back to todayISO. Set to an
   // explicit date once the user navigates away via the prev/next arrows.
   const [viewDateISO, setViewDateISO] = useState<string | null>(null);
@@ -98,7 +120,7 @@ export function Dashboard() {
     }
   }
 
-  const weekdayAverages = averageTipsByWeekday(shifts, WEEK_START_DAY);
+  const weekdayGroups = averageTipsByWeekdayAndShiftType(shifts, WEEK_START_DAY);
   const trend = weeklyTipsPerHourTrend(shifts, WEEK_START_DAY);
   const roleTotals = sumTipsByRole(shifts);
 
@@ -208,7 +230,7 @@ export function Dashboard() {
             Average tips by day of week
           </h2>
           <div className="mt-4">
-            <WeekdayBarChart data={weekdayAverages} />
+            <WeekdayBarChart data={weekdayGroups} />
           </div>
         </div>
         <div className="rounded-xl border border-border bg-card p-5">

@@ -1,5 +1,11 @@
 import { parseLocalDateString, formatDateInputValue } from "./shift-entry";
-import type { Shift, WageEntry } from "./local-data";
+import {
+  GENERAL_SHIFT_LABEL,
+  SHIFT_TYPE_LABELS,
+  type Shift,
+  type ShiftType,
+  type WageEntry,
+} from "./local-data";
 
 export type Period = "week" | "month" | "year" | "all";
 
@@ -200,32 +206,77 @@ export function sumHours(shifts: Shift[]): number {
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-export interface WeekdayAverage {
+// A shift's own shiftType, or "general" for shifts that don't have one set
+// (see local-data.ts's GENERAL_SHIFT_LABEL). Fixed order — General last,
+// since it isn't a real shift-type peer, just "unclassified" — matches the
+// --series-* CSS custom properties in globals.css and is the single source
+// both the chart and its legend build from.
+export type ShiftSeriesKey = ShiftType | "general";
+
+export const SHIFT_TYPE_SERIES: { key: ShiftSeriesKey; label: string }[] = [
+  ...(Object.entries(SHIFT_TYPE_LABELS) as [ShiftType, string][]).map(([key, label]) => ({
+    key: key as ShiftSeriesKey,
+    label,
+  })),
+  { key: "general", label: GENERAL_SHIFT_LABEL },
+];
+
+export interface ShiftTypeAverage {
+  key: ShiftSeriesKey;
   label: string;
   average: number;
   count: number;
 }
 
-export function averageTipsByWeekday(
+export interface WeekdayGroup {
+  label: string;
+  // Fixed order/length — always one entry per SHIFT_TYPE_SERIES slot, even
+  // when a day has zero shifts of that type, so groups stay aligned across
+  // every weekday and the legend's color-to-position mapping never shifts.
+  series: ShiftTypeAverage[];
+  totalCount: number;
+}
+
+export function averageTipsByWeekdayAndShiftType(
   shifts: Shift[],
   weekStartDay = 1, // Monday, matching the actual work week
-): WeekdayAverage[] {
-  const buckets = WEEKDAY_LABELS.map((label) => ({ label, total: 0, count: 0 }));
+): WeekdayGroup[] {
+  const buckets = WEEKDAY_LABELS.map(() => new Map<string, { total: number; count: number }>());
   for (const shift of shifts) {
     const date = parseLocalDateString(shift.date);
     if (!date) continue;
-    const bucket = buckets[date.getDay()];
+    const key = shift.shiftType ?? "general";
+    const dayBuckets = buckets[date.getDay()];
+    const bucket = dayBuckets.get(key) ?? { total: 0, count: 0 };
     bucket.total += shift.tipsAmount;
     bucket.count += 1;
+    dayBuckets.set(key, bucket);
   }
+
   // Rotate so the week reads in the order it's actually worked, not always
   // calendar-standard Sunday-first.
-  const ordered = [...buckets.slice(weekStartDay), ...buckets.slice(0, weekStartDay)];
-  return ordered.map((b) => ({
-    label: b.label,
-    average: b.count > 0 ? Math.round((b.total / b.count) * 100) / 100 : 0,
-    count: b.count,
-  }));
+  const orderedBuckets = [...buckets.slice(weekStartDay), ...buckets.slice(0, weekStartDay)];
+  const orderedLabels = [
+    ...WEEKDAY_LABELS.slice(weekStartDay),
+    ...WEEKDAY_LABELS.slice(0, weekStartDay),
+  ];
+
+  return orderedBuckets.map((dayBuckets, i) => {
+    const series = SHIFT_TYPE_SERIES.map(({ key, label }) => {
+      const bucket = dayBuckets.get(key) ?? { total: 0, count: 0 };
+      return {
+        key,
+        label,
+        average: bucket.count > 0 ? Math.round((bucket.total / bucket.count) * 100) / 100 : 0,
+        count: bucket.count,
+      };
+    });
+    return {
+      label: orderedLabels[i],
+      series,
+      totalCount: series.reduce((sum, s) => sum + s.count, 0),
+    };
+  });
 }
 
 export interface RoleTotal {

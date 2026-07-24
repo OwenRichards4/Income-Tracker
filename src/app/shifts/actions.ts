@@ -78,7 +78,7 @@ export interface ShiftInput {
   hoursWorked: number;
   tipsAmount: number;
   role: string | null;
-  shiftType: ShiftType;
+  shiftType: ShiftType | null;
   notes: string | null;
 }
 
