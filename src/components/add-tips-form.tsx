@@ -13,13 +13,22 @@ import {
 } from "@/lib/shift-entry";
 import { inputClass } from "@/lib/form-styles";
 import { RequiredMark } from "@/components/required-mark";
+import { PillSelect } from "@/components/pill-select";
 import { useRoles } from "@/lib/use-roles";
 import { useShifts } from "@/lib/use-shifts";
-import type { Shift } from "@/lib/local-data";
+import type { Shift, ShiftType } from "@/lib/local-data";
 
 // Purely cosmetic — long enough that the spinner reads as "doing something"
 // instead of a flicker, short enough not to feel like a real wait.
 const SAVE_REDIRECT_DELAY_MS = 600;
+
+// Display order — distinct from declaration order in the DB enum, which is
+// just alphabetical-ish and not meaningful.
+const SHIFT_TYPE_OPTIONS: { value: ShiftType; label: string }[] = [
+  { value: "opening", label: "Opening" },
+  { value: "bd", label: "BD" },
+  { value: "closing", label: "Closing" },
+];
 
 interface AddTipsFormProps {
   // Present when editing an existing shift rather than logging a new one.
@@ -55,6 +64,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
     initialParts ? String(initialParts.minutes) : "",
   );
   const [roleId, setRoleId] = useState("");
+  const [shiftType, setShiftType] = useState<ShiftType | "">(initialShift?.shiftType ?? "");
   const [notes, setNotes] = useState(initialShift?.notes ?? "");
   const [attempted, setAttempted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -83,6 +93,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
     minutesNum >= 0 &&
     minutesNum <= 59;
   const dateValid = date !== "";
+  const shiftTypeValid = shiftType !== "";
 
   const weekdayLabel = getWeekdayLabel(date);
   const totalHours = hoursMinutesToDecimal(hoursNum, minutesNum);
@@ -93,13 +104,14 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
     if (submitting) return;
     setAttempted(true);
     setError(null);
-    if (!amountValid || !durationValid || !dateValid) return;
+    if (!amountValid || !durationValid || !dateValid || !shiftTypeValid) return;
 
     const payload = {
       date,
       hoursWorked: totalHours,
       tipsAmount: Math.round(amountNum * 100) / 100,
       role: roles.find((r) => r.id === roleId)?.name ?? null,
+      shiftType,
       notes: notes.trim() === "" ? null : notes.trim(),
     };
 
@@ -230,22 +242,36 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
       </div>
 
       <div>
-        <label htmlFor="role" className="text-sm font-medium">
+        <span className="text-sm font-medium">
+          Shift type
+          <RequiredMark />
+        </span>
+        <div className="mt-1.5">
+          <PillSelect
+            ariaLabel="Shift type"
+            options={SHIFT_TYPE_OPTIONS}
+            value={shiftType || null}
+            onChange={(value) => setShiftType((value as ShiftType) ?? "")}
+          />
+        </div>
+        {attempted && !shiftTypeValid && (
+          <p className="mt-1 text-xs text-accent">Pick a shift type.</p>
+        )}
+      </div>
+
+      <div>
+        <span className="text-sm font-medium">
           Role <span className="text-muted-foreground">(optional)</span>
-        </label>
-        <select
-          id="role"
-          value={roleId}
-          onChange={(event) => setRoleId(event.target.value)}
-          className={`${inputClass} mt-1.5`}
-        >
-          <option value="">No role selected</option>
-          {roles.map((role) => (
-            <option key={role.id} value={role.id}>
-              {role.name}
-            </option>
-          ))}
-        </select>
+        </span>
+        <div className="mt-1.5">
+          <PillSelect
+            ariaLabel="Role"
+            options={roles.map((role) => ({ value: role.id, label: role.name }))}
+            value={roleId || null}
+            onChange={(value) => setRoleId(value ?? "")}
+            allowDeselect
+          />
+        </div>
         {roles.length === 0 && (
           <p className="mt-1.5 text-xs text-muted-foreground">
             No roles set up yet — add one in{" "}

@@ -47,7 +47,16 @@ export default async function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${theme === "dark" ? "dark" : ""} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body
+        className="min-h-full flex flex-col bg-background text-foreground"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        {/* appleWebApp.statusBarStyle "black-translucent" (above) makes
+            standalone/home-screen mode draw content edge-to-edge under the
+            status bar and home-indicator area. Without this padding, the
+            bottom of any tall page (e.g. Settings) ends up genuinely
+            unreachable — scrolled as far as it goes, but still behind the
+            home indicator. */}
         <SiteHeader />
         {children}
       </body>

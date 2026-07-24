@@ -1,6 +1,7 @@
 import {
   pgSchema,
   pgTable,
+  pgEnum,
   uuid,
   date,
   numeric,
@@ -9,6 +10,12 @@ import {
   smallint,
   boolean,
 } from "drizzle-orm/pg-core";
+
+// Fixed, app-defined categories — unlike roles, not something a user manages
+// themselves, so a Postgres enum (not a lookup table) enforces valid values
+// at the DB level. Order here is just declaration order; the app controls
+// display order separately.
+export const shiftTypeEnum = pgEnum("shift_type", ["opening", "bd", "closing"]);
 
 // Supabase manages the `auth` schema; we reference it for FKs and RLS
 // (auth.uid()) without owning or migrating it ourselves.
@@ -39,6 +46,10 @@ export const shifts = pgTable("shifts", {
     .references(() => authUsers.id, { onDelete: "cascade" }),
   // Nullable — a shift can be logged before any role has been set up.
   roleId: uuid("role_id").references(() => roles.id, { onDelete: "set null" }),
+  // Nullable only because shifts logged before this field existed have no
+  // value yet — the Add/Edit Tips form itself always requires picking one
+  // going forward.
+  shiftType: shiftTypeEnum("shift_type"),
   date: date("date").notNull(),
   hoursWorked: numeric("hours_worked", { precision: 5, scale: 2 }).notNull(),
   tipsAmount: numeric("tips_amount", { precision: 10, scale: 2 }).notNull(),

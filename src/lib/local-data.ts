@@ -2,12 +2,19 @@
 // Supabase now (see src/app/shifts/actions.ts, src/app/paychecks/actions.ts)
 // rather than the one-time localStorage seed this file used to hold.
 
+// Fixed set, matches the Postgres enum in src/db/schema.ts — display order
+// (Opening, BD, Closing) is defined once in add-tips-form.tsx.
+export type ShiftType = "opening" | "bd" | "closing";
+
 export interface Shift {
   id: string;
   date: string;
   hoursWorked: number;
   tipsAmount: number;
   role: string | null;
+  // Nullable only for shifts logged before this field existed — the
+  // Add/Edit Tips form always requires picking one going forward.
+  shiftType: ShiftType | null;
   notes: string | null;
   // When this row was logged in the app — drives "recent entries" ordering
   // (newest logged first), which is deliberately independent of `date` so a

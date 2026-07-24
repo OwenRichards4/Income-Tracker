@@ -1,6 +1,7 @@
 "use client";
 
 import type { Shift } from "@/lib/local-data";
+import { parseLocalDateString } from "@/lib/shift-entry";
 import { EntriesTable } from "./entries-table";
 
 interface RecentShiftsTableProps {
@@ -13,6 +14,12 @@ function formatDisplayDate(iso: string): string {
     month: "short",
     day: "numeric",
   });
+}
+
+function formatWeekday(iso: string): string {
+  const date = parseLocalDateString(iso);
+  if (!date) return "—";
+  return date.toLocaleDateString(undefined, { weekday: "short" });
 }
 
 export function RecentShiftsTable({ shifts }: RecentShiftsTableProps) {
@@ -36,6 +43,10 @@ export function RecentShiftsTable({ shifts }: RecentShiftsTableProps) {
           render: (s) => (
             <span className="text-muted-foreground">{s.hoursWorked} hr</span>
           ),
+        },
+        {
+          header: "Day",
+          render: (s) => <span className="text-muted-foreground">{formatWeekday(s.date)}</span>,
         },
         {
           header: "Role",

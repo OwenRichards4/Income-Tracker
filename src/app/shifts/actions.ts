@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { db, withDbRetry } from "@/db";
 import { shifts, roles } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
-import type { Shift } from "@/lib/local-data";
+import type { Shift, ShiftType } from "@/lib/local-data";
 
 async function getCurrentUserId(): Promise<string | null> {
   const supabase = await createClient();
@@ -34,6 +34,7 @@ function toShift(row: {
   tipsAmount: string;
   notes: string | null;
   createdAt: Date;
+  shiftType: ShiftType | null;
   roleName: string | null;
 }): Shift {
   return {
@@ -42,6 +43,7 @@ function toShift(row: {
     hoursWorked: Number(row.hoursWorked),
     tipsAmount: Number(row.tipsAmount),
     role: row.roleName,
+    shiftType: row.shiftType,
     notes: row.notes,
     createdAt: row.createdAt.toISOString(),
   };
@@ -60,6 +62,7 @@ export async function getShifts(): Promise<Shift[]> {
         tipsAmount: shifts.tipsAmount,
         notes: shifts.notes,
         createdAt: shifts.createdAt,
+        shiftType: shifts.shiftType,
         roleName: roles.name,
       })
       .from(shifts)
@@ -75,6 +78,7 @@ export interface ShiftInput {
   hoursWorked: number;
   tipsAmount: number;
   role: string | null;
+  shiftType: ShiftType;
   notes: string | null;
 }
 
@@ -88,6 +92,7 @@ export async function createShift(input: ShiftInput): Promise<Shift> {
     .values({
       userId,
       roleId,
+      shiftType: input.shiftType,
       date: input.date,
       hoursWorked: String(input.hoursWorked),
       tipsAmount: String(input.tipsAmount),
@@ -111,6 +116,7 @@ export async function updateShift(id: string, input: ShiftInput): Promise<Shift>
       tipsAmount: String(input.tipsAmount),
       notes: input.notes,
       roleId,
+      shiftType: input.shiftType,
     })
     .where(and(eq(shifts.id, id), eq(shifts.userId, userId)))
     .returning();
