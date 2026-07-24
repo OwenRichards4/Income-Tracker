@@ -173,72 +173,74 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
         )}
       </div>
 
-      <div>
-        <span className="text-sm font-medium">
-          Hours worked
-          <RequiredMark />
-        </span>
-        <div className="mt-1.5 grid grid-cols-2 gap-3">
-          <div className="relative">
-            <input
-              id="hours"
-              type="number"
-              inputMode="numeric"
-              min="0"
-              max="23"
-              step="1"
-              placeholder="0"
-              value={hours}
-              onChange={(event) => setHours(event.target.value)}
-              className={`${inputClass} pr-10`}
-              aria-label="Hours"
-              aria-required="true"
-            />
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-              hr
-            </span>
+      <div className="flex gap-3">
+        <div className="w-[35%]">
+          <span className="text-sm font-medium">
+            Hours worked
+            <RequiredMark />
+          </span>
+          <div className="mt-1.5 grid grid-cols-2 gap-2">
+            <div className="relative">
+              <input
+                id="hours"
+                type="number"
+                inputMode="numeric"
+                min="0"
+                max="23"
+                step="1"
+                placeholder="0"
+                value={hours}
+                onChange={(event) => setHours(event.target.value)}
+                className={`${inputClass} px-2 pr-7`}
+                aria-label="Hours"
+                aria-required="true"
+              />
+              <span className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                hr
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                id="minutes"
+                type="number"
+                inputMode="numeric"
+                min="0"
+                max="59"
+                step="1"
+                placeholder="0"
+                value={minutes}
+                onChange={(event) => setMinutes(event.target.value)}
+                className={`${inputClass} px-2 pr-8`}
+                aria-label="Minutes"
+                aria-required="true"
+              />
+              <span className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                min
+              </span>
+            </div>
           </div>
-          <div className="relative">
-            <input
-              id="minutes"
-              type="number"
-              inputMode="numeric"
-              min="0"
-              max="59"
-              step="1"
-              placeholder="0"
-              value={minutes}
-              onChange={(event) => setMinutes(event.target.value)}
-              className={`${inputClass} pr-10`}
-              aria-label="Minutes"
-              aria-required="true"
-            />
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-              min
-            </span>
-          </div>
+          {attempted && !durationValid && (
+            <p className="mt-1 text-xs text-accent">Enter a shift length &gt; 0.</p>
+          )}
         </div>
-        {attempted && !durationValid && (
-          <p className="mt-1 text-xs text-accent">Enter a shift length greater than 0.</p>
-        )}
-      </div>
 
-      <div>
-        <label htmlFor="date" className="text-sm font-medium">
-          Date
-          <RequiredMark />
-        </label>
-        <input
-          id="date"
-          type="date"
-          value={date}
-          onChange={(event) => setDate(event.target.value)}
-          className={`${inputClass} mt-1.5`}
-          aria-required="true"
-        />
-        {weekdayLabel && (
-          <p className="mt-1.5 text-xs text-muted-foreground">{weekdayLabel}</p>
-        )}
+        <div className="flex-1">
+          <label htmlFor="date" className="text-sm font-medium">
+            Date
+            <RequiredMark />
+          </label>
+          <input
+            id="date"
+            type="date"
+            value={date}
+            onChange={(event) => setDate(event.target.value)}
+            className={`${inputClass} mt-1.5`}
+            aria-required="true"
+          />
+          {weekdayLabel && (
+            <p className="mt-1.5 text-xs text-muted-foreground">{weekdayLabel}</p>
+          )}
+        </div>
       </div>
 
       <div>
