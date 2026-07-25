@@ -151,36 +151,53 @@ export function WeekdayBarChart({ data }: WeekdayBarChartProps) {
           })}
         </svg>
 
-        <div className="absolute inset-0 flex">
-          {data.map((d, dayIndex) => (
-            <div key={d.label} className="relative flex h-full flex-1">
-              {d.series.map((entry, seriesIndex) => (
+        <div className="absolute inset-0">
+          {data.flatMap((d, dayIndex) => {
+            const slotLeft = CHART_LEFT + slotWidth * dayIndex;
+            const slotRight = slotLeft + slotWidth;
+            const slotCenter = (slotLeft + slotRight) / 2;
+            const groupLeft =
+              slotCenter - (barWidth * seriesCount + BAR_GAP * (seriesCount - 1)) / 2;
+
+            // Only real bars get a hit target. Its bounds are the midpoint
+            // to its neighbors (or the slot edge, for the first/last) —
+            // most days only have one or two shift types logged, so this
+            // gives those bars a much bigger tap target than their thin
+            // visual width, filling the day's unused space, while staying
+            // aligned with where the bar actually is instead of an even
+            // split that drifts out of sync with the fixed bar positions.
+            const present = d.series
+              .map((entry, seriesIndex) => {
+                const barLeft = groupLeft + seriesIndex * (barWidth + BAR_GAP);
+                return { entry, seriesIndex, barLeft, barRight: barLeft + barWidth };
+              })
+              .filter(({ entry }) => entry.count > 0);
+
+            return present.map((p, i) => {
+              const prevRight = i > 0 ? present[i - 1].barRight : slotLeft;
+              const nextLeft = i < present.length - 1 ? present[i + 1].barLeft : slotRight;
+              const hitLeft = (p.barLeft + prevRight) / 2;
+              const hitRight = (p.barRight + nextLeft) / 2;
+              const isHovered =
+                hovered?.dayIndex === dayIndex && hovered.seriesIndex === p.seriesIndex;
+              return (
                 <button
-                  key={entry.key}
+                  key={`${d.label}-${p.entry.key}`}
                   type="button"
-                  tabIndex={entry.count > 0 ? 0 : -1}
-                  onPointerEnter={() => setHovered({ dayIndex, seriesIndex })}
-                  onPointerLeave={() =>
-                    setHovered((h) =>
-                      h?.dayIndex === dayIndex && h.seriesIndex === seriesIndex ? null : h,
-                    )
-                  }
-                  onFocus={() => setHovered({ dayIndex, seriesIndex })}
-                  onBlur={() =>
-                    setHovered((h) =>
-                      h?.dayIndex === dayIndex && h.seriesIndex === seriesIndex ? null : h,
-                    )
-                  }
-                  className="h-full flex-1 cursor-default"
-                  aria-label={`${d.label} ${entry.label}: ${
-                    entry.count > 0
-                      ? `$${entry.average.toFixed(2)} average over ${entry.count} shift${entry.count === 1 ? "" : "s"}`
-                      : "no shifts"
-                  }`}
+                  onPointerEnter={() => setHovered({ dayIndex, seriesIndex: p.seriesIndex })}
+                  onPointerLeave={() => setHovered((h) => (isHovered ? null : h))}
+                  onFocus={() => setHovered({ dayIndex, seriesIndex: p.seriesIndex })}
+                  onBlur={() => setHovered((h) => (isHovered ? null : h))}
+                  className="absolute top-0 h-full cursor-default"
+                  style={{
+                    left: `${(hitLeft / VIEW_W) * 100}%`,
+                    width: `${((hitRight - hitLeft) / VIEW_W) * 100}%`,
+                  }}
+                  aria-label={`${d.label} ${p.entry.label}: $${p.entry.average.toFixed(2)} average over ${p.entry.count} shift${p.entry.count === 1 ? "" : "s"}`}
                 />
-              ))}
-            </div>
-          ))}
+              );
+            });
+          })}
         </div>
 
         {hoveredEntry && (
