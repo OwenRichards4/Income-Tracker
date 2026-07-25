@@ -68,11 +68,27 @@ function useIsCoarsePointer(): boolean {
 
 export function WeekdayBarChart({ data }: WeekdayBarChartProps) {
   const [hovered, setHovered] = useState<HoverTarget | null>(null);
+  const [hiddenSeries, setHiddenSeries] = useState<Set<ShiftSeriesKey>>(() => new Set());
   const isCoarsePointer = useIsCoarsePointer();
 
-  const hasData = data.some((d) => d.totalCount > 0);
+  function toggleSeries(key: ShiftSeriesKey) {
+    setHiddenSeries((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+    setHovered(null);
+  }
+
+  const isVisible = (key: ShiftSeriesKey) => !hiddenSeries.has(key);
+  const hasAnyData = data.some((d) => d.totalCount > 0);
+  const hasVisibleData = data.some((d) => d.series.some((s) => isVisible(s.key) && s.count > 0));
   const maxAverage = niceCeil(
-    Math.max(...data.flatMap((d) => d.series.map((s) => s.average)), 0),
+    Math.max(
+      ...data.flatMap((d) => d.series.filter((s) => isVisible(s.key)).map((s) => s.average)),
+      0,
+    ),
   );
 
   const slotWidth = CHART_W / data.length;
@@ -88,7 +104,7 @@ export function WeekdayBarChart({ data }: WeekdayBarChartProps) {
     return CHART_BOTTOM - (value / maxAverage) * CHART_H;
   }
 
-  if (!hasData) {
+  if (!hasAnyData) {
     return (
       <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
         No shifts logged in this period yet.
@@ -97,14 +113,20 @@ export function WeekdayBarChart({ data }: WeekdayBarChartProps) {
   }
 
   const gridValues = [0, maxAverage / 2, maxAverage];
+  const hoveredSeriesEntry = hovered && data[hovered.dayIndex].series[hovered.seriesIndex];
   const hoveredEntry =
-    hovered && data[hovered.dayIndex].series[hovered.seriesIndex].count > 0
-      ? { day: data[hovered.dayIndex], entry: data[hovered.dayIndex].series[hovered.seriesIndex] }
+    hovered && hoveredSeriesEntry && hoveredSeriesEntry.count > 0 && isVisible(hoveredSeriesEntry.key)
+      ? { day: data[hovered.dayIndex], entry: hoveredSeriesEntry }
       : null;
 
   return (
     <div>
       <div className="relative w-full" style={{ aspectRatio: `${VIEW_W} / ${VIEW_H}` }}>
+        {!hasVisibleData && (
+          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-sm text-muted-foreground">
+            All shift types are hidden — click a key below to show one.
+          </div>
+        )}
         <svg
           viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
           className="h-full w-full overflow-visible"
@@ -144,15 +166,16 @@ export function WeekdayBarChart({ data }: WeekdayBarChartProps) {
                   const barLeft = groupLeft + seriesIndex * (barWidth + BAR_GAP);
                   const barTop = yFor(entry.average);
                   const barHeight = Math.max(CHART_BOTTOM - barTop, 0);
+                  const shown = entry.count > 0 && isVisible(entry.key);
                   const isHovered =
                     hovered?.dayIndex === dayIndex && hovered.seriesIndex === seriesIndex;
                   return (
                     <rect
                       key={entry.key}
                       x={barLeft}
-                      y={entry.count > 0 ? barTop : CHART_BOTTOM}
+                      y={shown ? barTop : CHART_BOTTOM}
                       width={barWidth}
-                      height={entry.count > 0 ? barHeight : 0}
+                      height={shown ? barHeight : 0}
                       rx={3}
                       className={SERIES_FILL_CLASS[entry.key]}
                       opacity={isHovered ? 0.85 : 1}
@@ -191,7 +214,7 @@ export function WeekdayBarChart({ data }: WeekdayBarChartProps) {
                 const barLeft = groupLeft + seriesIndex * (barWidth + BAR_GAP);
                 return { entry, seriesIndex, barLeft, barRight: barLeft + barWidth };
               })
-              .filter(({ entry }) => entry.count > 0);
+              .filter(({ entry }) => entry.count > 0 && isVisible(entry.key));
 
             return present.map((p, i) => {
               const prevRight = i > 0 ? present[i - 1].barRight : slotLeft;
@@ -252,12 +275,29 @@ export function WeekdayBarChart({ data }: WeekdayBarChartProps) {
       </div>
 
       <div className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1.5">
-        {SHIFT_TYPE_SERIES.map((s) => (
-          <div key={s.key} className="flex items-center gap-1.5">
-            <span className={`size-2.5 rounded-full ${SERIES_SWATCH_CLASS[s.key]}`} />
-            <span className="text-xs text-muted-foreground">{s.label}</span>
-          </div>
-        ))}
+        {SHIFT_TYPE_SERIES.map((s) => {
+          const visible = isVisible(s.key);
+          return (
+            <button
+              key={s.key}
+              type="button"
+              onClick={() => toggleSeries(s.key)}
+              aria-pressed={visible}
+              aria-label={`${visible ? "Hide" : "Show"} ${s.label} in chart`}
+              className="flex cursor-pointer items-center gap-1.5"
+            >
+              <span
+                className={`size-2.5 rounded-full ${SERIES_SWATCH_CLASS[s.key]}`}
+                style={{ opacity: visible ? 1 : 0.3 }}
+              />
+              <span
+                className={`text-xs ${visible ? "text-muted-foreground" : "text-muted-foreground/40 line-through"}`}
+              >
+                {s.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
