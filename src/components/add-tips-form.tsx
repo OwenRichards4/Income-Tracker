@@ -164,7 +164,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
           />
         </div>
         {attempted && !amountValid && (
-          <p className="mt-1 text-xs text-accent">Enter an amount greater than $0.</p>
+          <p className="mt-1 text-xs text-destructive">Enter an amount greater than $0.</p>
         )}
       </div>
 
@@ -215,7 +215,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
             </div>
           </div>
           {attempted && !durationValid && (
-            <p className="mt-1 text-xs text-accent">Enter a shift length &gt; 0.</p>
+            <p className="mt-1 text-xs text-destructive">Enter a shift length &gt; 0.</p>
           )}
         </div>
 
@@ -305,7 +305,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
         </p>
       )}
 
-      {error && <p className="text-sm text-accent">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       <button
         type="submit"
@@ -323,7 +323,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
           type="button"
           onClick={handleDelete}
           disabled={submitting}
-          className="w-full cursor-pointer rounded-full border border-accent px-4 py-2.5 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-70"
+          className="w-full cursor-pointer rounded-full border border-destructive px-4 py-2.5 text-sm font-semibold text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground disabled:cursor-not-allowed disabled:opacity-70"
         >
           Delete entry
         </button>

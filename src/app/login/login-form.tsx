@@ -38,7 +38,7 @@ export function LoginForm() {
           required
         />
         {state.status === "error" && (
-          <p className="mt-1 text-xs text-accent">{state.message}</p>
+          <p className="mt-1 text-xs text-destructive">{state.message}</p>
         )}
       </div>
 

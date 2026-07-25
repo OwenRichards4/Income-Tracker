@@ -121,7 +121,7 @@ export function AddPaycheckForm({ initialEntry }: AddPaycheckFormProps) {
           />
         </div>
         {attempted && !checkAmountValid && (
-          <p className="mt-1 text-xs text-accent">
+          <p className="mt-1 text-xs text-destructive">
             Enter an amount greater than $0.
           </p>
         )}
@@ -150,7 +150,7 @@ export function AddPaycheckForm({ initialEntry }: AddPaycheckFormProps) {
           />
         </div>
         {attempted && !withheldValid && (
-          <p className="mt-1 text-xs text-accent">
+          <p className="mt-1 text-xs text-destructive">
             Enter an amount of $0 or more.
           </p>
         )}
@@ -188,7 +188,7 @@ export function AddPaycheckForm({ initialEntry }: AddPaycheckFormProps) {
           </div>
         </div>
         {attempted && !periodValid && (
-          <p className="mt-1 text-xs text-accent">
+          <p className="mt-1 text-xs text-destructive">
             {periodStart && periodEnd && periodEnd < periodStart
               ? "End date must be on or after the start date."
               : "Enter both a start and end date."}
@@ -219,7 +219,7 @@ export function AddPaycheckForm({ initialEntry }: AddPaycheckFormProps) {
         </p>
       )}
 
-      {error && <p className="text-sm text-accent">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       <button
         type="submit"
@@ -237,7 +237,7 @@ export function AddPaycheckForm({ initialEntry }: AddPaycheckFormProps) {
           type="button"
           onClick={handleDelete}
           disabled={submitting}
-          className="w-full cursor-pointer rounded-full border border-accent px-4 py-2.5 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-70"
+          className="w-full cursor-pointer rounded-full border border-destructive px-4 py-2.5 text-sm font-semibold text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground disabled:cursor-not-allowed disabled:opacity-70"
         >
           Delete entry
         </button>

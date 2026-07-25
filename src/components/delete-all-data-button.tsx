@@ -28,7 +28,7 @@ export function DeleteAllDataButton() {
 
   if (confirming) {
     return (
-      <div className="rounded-lg border border-accent p-3">
+      <div className="rounded-lg border border-destructive p-3">
         <p className="text-sm font-medium text-foreground">
           Delete everything? This can&apos;t be undone.
         </p>
@@ -42,7 +42,7 @@ export function DeleteAllDataButton() {
             type="button"
             onClick={handleConfirmedDelete}
             disabled={deleting}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {deleting && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
             {deleting ? "Deleting…" : "Yes, delete everything"}
@@ -56,7 +56,7 @@ export function DeleteAllDataButton() {
             Cancel
           </button>
         </div>
-        {error && <p className="mt-2 text-xs text-accent">{error}</p>}
+        {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
       </div>
     );
   }
@@ -65,7 +65,7 @@ export function DeleteAllDataButton() {
     <button
       type="button"
       onClick={() => setConfirming(true)}
-      className="cursor-pointer rounded-full border border-accent px-4 py-2.5 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-accent-foreground"
+      className="cursor-pointer rounded-full border border-destructive px-4 py-2.5 text-sm font-semibold text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground"
     >
       Delete all data
     </button>

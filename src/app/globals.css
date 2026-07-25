@@ -8,14 +8,26 @@
   /* Tells the browser to render native form chrome (date picker icon,
      number spinners, scrollbars) with a light-appropriate palette. */
   color-scheme: light;
-  --background: #e9ecef;
+  /* Faint canvas gray behind white cards — same move Stripe/Linear-style
+     dashboards make, relying on a whisper of contrast plus a hairline
+     border rather than a strongly-tinted page background. */
+  --background: #fafafa;
   --foreground: #171717;
   --card: #ffffff;
   --border: #e4e4e7;
   --muted: #f4f4f5;
   --muted-foreground: #71717a;
-  --accent: #dc2626;
+  /* Brand/interactive color — a cornflower blue-violet in Stripe's family
+     (#635bff), not a made-up hue. Frees red up to mean only "destructive"
+     (see --destructive below) instead of doing double duty as both brand
+     and danger. */
+  --accent: #635bff;
   --accent-foreground: #ffffff;
+  /* Same red the app always used for --accent, now split into its own
+     token so it can mean "destructive/error" specifically — delete
+     buttons, validation errors, the required-field mark, sign out. */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
   /* Categorical chart series (weekday-by-shift-type chart) — first three
      slots of the validated default categorical palette (dataviz skill),
      re-validated against this app's own card surfaces incl. --pairs all,
@@ -40,8 +52,13 @@
   --border: #27324a;
   --muted: #1e293b;
   --muted-foreground: #94a3b8;
+  /* Dark mode is untouched — accent and destructive still coincide here,
+     same as before this split (both red), since only light mode's palette
+     is changing. */
   --accent: #ef4444;
   --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
   --series-opening: #3987e5;
   --series-bd: #d95926;
   --series-closing: #199e70;
@@ -57,6 +74,8 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-series-opening: var(--series-opening);
   --color-series-bd: var(--series-bd);
   --color-series-closing: var(--series-closing);

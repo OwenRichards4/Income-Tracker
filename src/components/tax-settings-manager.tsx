@@ -83,9 +83,9 @@ export function TaxSettingsManager() {
           </button>
         </div>
         {!rateValid && rate !== "" && (
-          <p className="mt-1.5 text-xs text-accent">Enter a rate between 0 and 100.</p>
+          <p className="mt-1.5 text-xs text-destructive">Enter a rate between 0 and 100.</p>
         )}
-        {error && <p className="mt-1.5 text-xs text-accent">{error}</p>}
+        {error && <p className="mt-1.5 text-xs text-destructive">{error}</p>}
         {saved && !error && (
           <p className="mt-1.5 text-xs text-muted-foreground">Saved.</p>
         )}

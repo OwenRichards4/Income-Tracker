@@ -1,6 +1,6 @@
 export function RequiredMark() {
   return (
-    <span className="text-accent" aria-hidden="true">
+    <span className="text-destructive" aria-hidden="true">
       {" "}
       *
     </span>

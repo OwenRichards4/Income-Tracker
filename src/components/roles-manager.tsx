@@ -130,7 +130,7 @@ export function RolesManager() {
                   </div>
                 </div>
                 {editAttempted && (!editNameValid || !editRateValid) && (
-                  <p className="mt-1.5 text-xs text-accent">
+                  <p className="mt-1.5 text-xs text-destructive">
                     Enter a role name and a base rate of $0 or more.
                   </p>
                 )}
@@ -175,7 +175,7 @@ export function RolesManager() {
                   <button
                     type="button"
                     onClick={() => handleRemove(role.id)}
-                    className="cursor-pointer text-xs font-medium text-muted-foreground hover:text-accent"
+                    className="cursor-pointer text-xs font-medium text-muted-foreground hover:text-destructive"
                   >
                     Remove
                   </button>
@@ -225,11 +225,11 @@ export function RolesManager() {
         </button>
       </form>
       {attempted && (!nameValid || !rateValid) && (
-        <p className="mt-1.5 text-xs text-accent">
+        <p className="mt-1.5 text-xs text-destructive">
           Enter a role name and a base rate of $0 or more.
         </p>
       )}
-      {error && <p className="mt-1.5 text-xs text-accent">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-destructive">{error}</p>}
     </div>
   );
 }

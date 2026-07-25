@@ -22,7 +22,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         Enter your email and we&apos;ll send you a link — no password to set up.
       </p>
       {error && (
-        <p className="mt-3 text-xs text-accent">
+        <p className="mt-3 text-xs text-destructive">
           That sign-in link didn&apos;t work — it may have expired. Try again below.
         </p>
       )}

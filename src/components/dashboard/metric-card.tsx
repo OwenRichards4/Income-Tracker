@@ -14,9 +14,10 @@ interface MetricCardProps {
 // (#ffffff) and dark (#1a2436) card surfaces, clearing WCAG's large-text
 // 3:1 bar in both — this text is text-2xl/font-semibold, which qualifies as
 // "large" so 3:1 (not 4.5:1) applies. `negative` reuses the app's own
-// dark-mode accent red rather than a new hex — it's visibly lighter than
-// the light-mode accent (#dc2626) already used for buttons/errors, which is
-// the "lighter red" this was asked for, without introducing a color the
+// dark-mode destructive red rather than a new hex — it's visibly lighter
+// than the light-mode destructive red (#dc2626, see --destructive in
+// globals.css) already used for delete buttons/errors, which is the
+// "lighter red" this was asked for, without introducing a color the
 // palette doesn't already have.
 const TONE_CLASS: Record<"positive" | "negative", string> = {
   positive: "text-[#0ca30c]",
@@ -25,10 +26,10 @@ const TONE_CLASS: Record<"positive" | "negative", string> = {
 
 // Stat tile: label, value, optional signed delta vs a named prior period.
 // For the delta arrow, only "up" gets a color (green) — "down" stays neutral
-// gray rather than red, since red is this app's brand/action color and
-// doubling it as a bad-news signal would collide with the Add Tips button
-// etc. (`tone` above is a separate, deliberate exception for cards where the
-// value itself — not a change over time — is inherently good/bad news.)
+// gray rather than red, to avoid a wall of alarming red every time a number
+// dips vs. last period. (`tone` above is a separate, deliberate exception
+// for cards where the value itself — not a change over time — is inherently
+// good/bad news.)
 export function MetricCard({ label, value, tone, delta }: MetricCardProps) {
   return (
     <div className="rounded-xl border border-border bg-card p-5">
