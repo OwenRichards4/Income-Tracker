@@ -8,10 +8,10 @@
   /* Tells the browser to render native form chrome (date picker icon,
      number spinners, scrollbars) with a light-appropriate palette. */
   color-scheme: light;
-  --background: #ffffff;
+  --background: #e9ecef;
   --foreground: #171717;
-  --card: #eef1f4;
-  --border: #d6dade;
+  --card: #ffffff;
+  --border: #e4e4e7;
   --muted: #f4f4f5;
   --muted-foreground: #71717a;
   --accent: #dc2626;

@@ -11,16 +11,15 @@ interface MetricCardProps {
 }
 
 // Both value colors below are contrast-checked against this app's light
-// (#eef1f4) and dark (#1a2436) card surfaces, clearing WCAG's large-text
+// (#ffffff) and dark (#1a2436) card surfaces, clearing WCAG's large-text
 // 3:1 bar in both — this text is text-2xl/font-semibold, which qualifies as
-// "large" so 3:1 (not 4.5:1) applies. `positive` is a touch darker than a
-// pure "brand green" so it still clears 3:1 on the light card's darker
-// surface. `negative` reuses the app's own dark-mode accent red rather than
-// a new hex — it's visibly lighter than the light-mode accent (#dc2626)
-// already used for buttons/errors, which is the "lighter red" this was
-// asked for, without introducing a color the palette doesn't already have.
+// "large" so 3:1 (not 4.5:1) applies. `negative` reuses the app's own
+// dark-mode accent red rather than a new hex — it's visibly lighter than
+// the light-mode accent (#dc2626) already used for buttons/errors, which is
+// the "lighter red" this was asked for, without introducing a color the
+// palette doesn't already have.
 const TONE_CLASS: Record<"positive" | "negative", string> = {
-  positive: "text-[#0a8f0a]",
+  positive: "text-[#0ca30c]",
   negative: "text-[#ef4444]",
 };
 
@@ -42,7 +41,7 @@ export function MetricCard({ label, value, tone, delta }: MetricCardProps) {
       {delta && (
         <p
           className={`mt-1 text-xs font-medium ${
-            delta.direction === "up" ? "text-[#0a8f0a]" : "text-muted-foreground"
+            delta.direction === "up" ? "text-[#0ca30c]" : "text-muted-foreground"
           }`}
         >
           {delta.direction === "up" ? "▲" : delta.direction === "down" ? "▼" : "—"}{" "}
