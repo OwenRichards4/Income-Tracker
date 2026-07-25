@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SHIFT_TYPE_SERIES, type ShiftSeriesKey, type WeekdayGroup } from "@/lib/dashboard";
 
 interface WeekdayBarChartProps {
@@ -46,8 +46,29 @@ interface HoverTarget {
   seriesIndex: number;
 }
 
+// Touch has no real hover, so it needs its own interaction model rather than
+// reusing the mouse one: a coarse pointer gets big tap-to-toggle zones that
+// expand into empty neighboring space (precision isn't there to land on a
+// thin bar), while a precise pointer gets zones matching the bar's actual
+// width (a mouse expects the tooltip to track exactly what's under the
+// cursor — the expanded zones felt wrong here, triggering the wrong bar
+// while visually hovering empty space next to it).
+function useIsCoarsePointer(): boolean {
+  const [isCoarse, setIsCoarse] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(pointer: coarse)");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsCoarse(query.matches);
+    const onChange = (event: MediaQueryListEvent) => setIsCoarse(event.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
+  return isCoarse;
+}
+
 export function WeekdayBarChart({ data }: WeekdayBarChartProps) {
   const [hovered, setHovered] = useState<HoverTarget | null>(null);
+  const isCoarsePointer = useIsCoarsePointer();
 
   const hasData = data.some((d) => d.totalCount > 0);
   const maxAverage = niceCeil(
@@ -159,13 +180,12 @@ export function WeekdayBarChart({ data }: WeekdayBarChartProps) {
             const groupLeft =
               slotCenter - (barWidth * seriesCount + BAR_GAP * (seriesCount - 1)) / 2;
 
-            // Only real bars get a hit target. Its bounds are the midpoint
-            // to its neighbors (or the slot edge, for the first/last) —
-            // most days only have one or two shift types logged, so this
-            // gives those bars a much bigger tap target than their thin
-            // visual width, filling the day's unused space, while staying
-            // aligned with where the bar actually is instead of an even
-            // split that drifts out of sync with the fixed bar positions.
+            // Only real bars get a hit target — on touch its bounds expand
+            // to the midpoint to its neighbors (or the slot edge, for the
+            // first/last), since most days only have one or two shift types
+            // logged and precision isn't there anyway; on a precise pointer
+            // it's exactly the bar's own width, so the tooltip only ever
+            // tracks what's actually under the cursor.
             const present = d.series
               .map((entry, seriesIndex) => {
                 const barLeft = groupLeft + seriesIndex * (barWidth + BAR_GAP);
@@ -176,22 +196,33 @@ export function WeekdayBarChart({ data }: WeekdayBarChartProps) {
             return present.map((p, i) => {
               const prevRight = i > 0 ? present[i - 1].barRight : slotLeft;
               const nextLeft = i < present.length - 1 ? present[i + 1].barLeft : slotRight;
-              const hitLeft = (p.barLeft + prevRight) / 2;
-              const hitRight = (p.barRight + nextLeft) / 2;
+              const hitLeft = isCoarsePointer ? (p.barLeft + prevRight) / 2 : p.barLeft;
+              const hitRight = isCoarsePointer ? (p.barRight + nextLeft) / 2 : p.barRight;
               const isHovered =
                 hovered?.dayIndex === dayIndex && hovered.seriesIndex === p.seriesIndex;
+              const target = { dayIndex, seriesIndex: p.seriesIndex };
               return (
                 <button
                   key={`${d.label}-${p.entry.key}`}
                   type="button"
-                  onPointerEnter={() => setHovered({ dayIndex, seriesIndex: p.seriesIndex })}
-                  onPointerLeave={() => setHovered((h) => (isHovered ? null : h))}
-                  onFocus={() => setHovered({ dayIndex, seriesIndex: p.seriesIndex })}
-                  onBlur={() => setHovered((h) => (isHovered ? null : h))}
+                  {...(isCoarsePointer
+                    ? {
+                        onClick: () => setHovered(isHovered ? null : target),
+                      }
+                    : {
+                        onPointerEnter: () => setHovered(target),
+                        onPointerLeave: () => setHovered((h) => (isHovered ? null : h)),
+                        onFocus: () => setHovered(target),
+                        onBlur: () => setHovered((h) => (isHovered ? null : h)),
+                      })}
                   className="absolute top-0 h-full cursor-default"
                   style={{
                     left: `${(hitLeft / VIEW_W) * 100}%`,
                     width: `${((hitRight - hitLeft) / VIEW_W) * 100}%`,
+                    touchAction: "manipulation",
+                    WebkitUserSelect: "none",
+                    userSelect: "none",
+                    WebkitTouchCallout: "none",
                   }}
                   aria-label={`${d.label} ${p.entry.label}: $${p.entry.average.toFixed(2)} average over ${p.entry.count} shift${p.entry.count === 1 ? "" : "s"}`}
                 />
