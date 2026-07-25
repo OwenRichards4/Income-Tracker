@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { WeeklyTrendPoint } from "@/lib/dashboard";
+import type { TrendPoint } from "@/lib/dashboard";
 
 interface TipsTrendChartProps {
-  data: WeeklyTrendPoint[];
+  data: TrendPoint[];
 }
 
 const VIEW_W = 560;
@@ -20,11 +20,6 @@ function niceCeil(value: number): number {
   if (value <= 0) return 10;
   const magnitude = 10 ** Math.floor(Math.log10(value));
   return Math.ceil(value / (magnitude / 2)) * (magnitude / 2);
-}
-
-function formatWeekLabel(weekStart: string): string {
-  const [, month, day] = weekStart.split("-");
-  return `${Number(month)}/${Number(day)}`;
 }
 
 export function TipsTrendChart({ data }: TipsTrendChartProps) {
@@ -61,7 +56,7 @@ export function TipsTrendChart({ data }: TipsTrendChartProps) {
         viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
         className="h-full w-full overflow-visible"
         role="img"
-        aria-label="Tips per hour, weekly trend"
+        aria-label="Tips per hour trend"
       >
         {gridValues.map((v) => (
           <line
@@ -139,13 +134,13 @@ export function TipsTrendChart({ data }: TipsTrendChartProps) {
         {data.map((d, i) =>
           i % Math.ceil(data.length / 6) === 0 ? (
             <text
-              key={d.weekStart}
+              key={d.key}
               x={xFor(i)}
               y={CHART_BOTTOM + 16}
               textAnchor="middle"
               className="fill-muted-foreground text-[10px]"
             >
-              {formatWeekLabel(d.weekStart)}
+              {d.label}
             </text>
           ) : null,
         )}
@@ -154,7 +149,7 @@ export function TipsTrendChart({ data }: TipsTrendChartProps) {
       <div className="absolute inset-0 flex">
         {data.map((d, i) => (
           <button
-            key={d.weekStart}
+            key={d.key}
             type="button"
             tabIndex={0}
             onPointerEnter={() => setHovered(i)}
@@ -162,7 +157,7 @@ export function TipsTrendChart({ data }: TipsTrendChartProps) {
             onFocus={() => setHovered(i)}
             onBlur={() => setHovered((h) => (h === i ? null : h))}
             className="h-full flex-1 cursor-default"
-            aria-label={`Week of ${formatWeekLabel(d.weekStart)}: $${d.rate.toFixed(2)} per hour`}
+            aria-label={`${d.label}: $${d.rate.toFixed(2)} per hour`}
           />
         ))}
       </div>
@@ -177,7 +172,7 @@ export function TipsTrendChart({ data }: TipsTrendChartProps) {
           }}
         >
           <p className="font-semibold text-foreground">${data[hovered].rate.toFixed(2)}/hr</p>
-          <p className="text-muted-foreground">Week of {formatWeekLabel(data[hovered].weekStart)}</p>
+          <p className="text-muted-foreground">{data[hovered].label}</p>
         </div>
       )}
     </div>

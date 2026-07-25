@@ -15,9 +15,9 @@ const CHART_TOP = 14;
 const CHART_BOTTOM = VIEW_H - 28;
 const CHART_W = CHART_RIGHT - CHART_LEFT;
 const CHART_H = CHART_BOTTOM - CHART_TOP;
-const BAR_MAX_WIDTH = 16;
-const BAR_GAP = 2;
-const GROUP_WIDTH_RATIO = 0.8; // fraction of each weekday's slot the bar group fills
+const BAR_MAX_WIDTH = 20;
+const BAR_GAP = 2; // dataviz skill's minimum surface gap between adjacent fills — don't go below this
+const GROUP_WIDTH_RATIO = 0.94; // fraction of each weekday's slot the bar group fills
 
 // Matches --series-* in globals.css — Tailwind generates fill-series-*
 // utilities from those custom properties, so the chart stays theme-aware

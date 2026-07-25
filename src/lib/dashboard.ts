@@ -303,32 +303,65 @@ export function sumTipsByRole(shifts: Shift[]): RoleTotal[] {
     .sort((a, b) => b.total - a.total);
 }
 
-export interface WeeklyTrendPoint {
-  weekStart: string;
+export interface TrendPoint {
+  // Sort key — a day/week-start/month-start ISO date, whichever the bucket
+  // granularity below is. Not shown in the UI.
+  key: string;
+  label: string;
   rate: number;
 }
 
-// One point per week (rather than per shift) so the trend line stays
-// readable instead of a dense, noisy cloud of daily points.
-export function weeklyTipsPerHourTrend(
+function formatDayLabel(iso: string): string {
+  const date = parseLocalDateString(iso);
+  return date ? date.toLocaleDateString(undefined, { weekday: "short" }) : "";
+}
+
+function formatWeekLabel(iso: string): string {
+  const [, month, day] = iso.split("-");
+  return `${Number(month)}/${Number(day)}`;
+}
+
+function formatMonthLabel(iso: string): string {
+  const date = parseLocalDateString(iso);
+  return date ? date.toLocaleDateString(undefined, { month: "short" }) : "";
+}
+
+// Bucket granularity adapts to the viewed period so there's always a
+// meaningful multi-point trend instead of either a single dot (a whole week
+// of shifts all landing in one weekly bucket) or a dense, noisy cloud (a
+// full year plotted day-by-day): day-by-day within a week, week-by-week
+// within a month (unchanged from the original design), month-by-month for a
+// year or the all-time view.
+export function tipsPerHourTrend(
   shifts: Shift[],
+  period: Period,
   weekStartDay = 1,
-): WeeklyTrendPoint[] {
+): TrendPoint[] {
+  const granularity = period === "week" ? "day" : period === "month" ? "week" : "month";
+  const formatLabel =
+    granularity === "day" ? formatDayLabel : granularity === "week" ? formatWeekLabel : formatMonthLabel;
+
   const buckets = new Map<string, { tips: number; hours: number }>();
   for (const shift of shifts) {
     if (shift.hoursWorked <= 0) continue;
     const date = parseLocalDateString(shift.date);
     if (!date) continue;
-    const key = formatDateInputValue(startOfWeek(date, weekStartDay));
+    const key =
+      granularity === "day"
+        ? shift.date
+        : granularity === "week"
+          ? formatDateInputValue(startOfWeek(date, weekStartDay))
+          : formatDateInputValue(startOfMonth(date));
     const bucket = buckets.get(key) ?? { tips: 0, hours: 0 };
     bucket.tips += shift.tipsAmount;
     bucket.hours += shift.hoursWorked;
     buckets.set(key, bucket);
   }
   return [...buckets.entries()]
-    .map(([weekStart, { tips, hours }]) => ({
-      weekStart,
+    .map(([key, { tips, hours }]) => ({
+      key,
+      label: formatLabel(key),
       rate: hours > 0 ? Math.round((tips / hours) * 100) / 100 : 0,
     }))
-    .sort((a, b) => (a.weekStart < b.weekStart ? -1 : a.weekStart > b.weekStart ? 1 : 0));
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
 }

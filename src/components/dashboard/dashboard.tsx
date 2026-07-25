@@ -15,7 +15,7 @@ import {
   filterWageEntriesByRange,
   sumTips,
   averageTipsByWeekdayAndShiftType,
-  weeklyTipsPerHourTrend,
+  tipsPerHourTrend,
   sumTipsByRole,
 } from "@/lib/dashboard";
 import { formatDateInputValue } from "@/lib/shift-entry";
@@ -121,7 +121,7 @@ export function Dashboard() {
   }
 
   const weekdayGroups = averageTipsByWeekdayAndShiftType(shifts, WEEK_START_DAY);
-  const trend = weeklyTipsPerHourTrend(shifts, WEEK_START_DAY);
+  const trend = tipsPerHourTrend(shifts, period, WEEK_START_DAY);
   const roleTotals = sumTipsByRole(shifts);
 
   return (
@@ -234,9 +234,7 @@ export function Dashboard() {
           </div>
         </div>
         <div className="rounded-xl border border-border bg-card p-5">
-          <h2 className="text-sm font-medium text-foreground">
-            Tips per hour, weekly trend
-          </h2>
+          <h2 className="text-sm font-medium text-foreground">Tips per hour trend</h2>
           <div className="mt-4">
             <TipsTrendChart data={trend} />
           </div>
