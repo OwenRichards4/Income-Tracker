@@ -162,25 +162,25 @@ export function AddPaycheckForm({ initialEntry }: AddPaycheckFormProps) {
           <RequiredMark />
         </span>
         <div className="mt-1.5 grid grid-cols-2 gap-3">
-          <div>
+          <div className="min-w-0">
             <input
               id="period-start"
               type="date"
               value={periodStart}
               onChange={(event) => setPeriodStart(event.target.value)}
-              className={inputClass}
+              className={`${inputClass} min-w-0`}
               aria-label="Period start"
               aria-required="true"
             />
             <p className="mt-1 text-xs text-muted-foreground">Start</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <input
               id="period-end"
               type="date"
               value={periodEnd}
               onChange={(event) => setPeriodEnd(event.target.value)}
-              className={inputClass}
+              className={`${inputClass} min-w-0`}
               aria-label="Period end"
               aria-required="true"
             />

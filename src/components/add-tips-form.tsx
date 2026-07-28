@@ -219,7 +219,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
           )}
         </div>
 
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <label htmlFor="date" className="text-sm font-medium">
             Date
             <RequiredMark />
@@ -229,7 +229,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
             type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
-            className={`${inputClass} mt-1.5`}
+            className={`${inputClass} mt-1.5 min-w-0`}
             aria-required="true"
           />
           {weekdayLabel && (
