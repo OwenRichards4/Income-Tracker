@@ -16,6 +16,7 @@ import { RequiredMark } from "@/components/required-mark";
 import { PillSelect } from "@/components/pill-select";
 import { useRoles } from "@/lib/use-roles";
 import { useShifts } from "@/lib/use-shifts";
+import { useHomeHref } from "@/lib/demo/context";
 import { SHIFT_TYPE_LABELS, type Shift, type ShiftType } from "@/lib/local-data";
 
 // Purely cosmetic — long enough that the spinner reads as "doing something"
@@ -34,6 +35,7 @@ interface AddTipsFormProps {
 export function AddTipsForm({ initialShift }: AddTipsFormProps) {
   const isEditing = !!initialShift;
   const router = useRouter();
+  const homeHref = useHomeHref();
   const { roles } = useRoles();
   const { addShift, updateShift, removeShift } = useShifts();
 
@@ -121,7 +123,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
       // feel instant/silent — gives the entry a moment to land before it's
       // back in view at the top of Recent entries.
       await new Promise((resolve) => window.setTimeout(resolve, SAVE_REDIRECT_DELAY_MS));
-      router.push("/");
+      router.push(homeHref);
     } catch (err) {
       setSubmitting(false);
       setError(err instanceof Error ? err.message : "Couldn't save — try again.");
@@ -133,7 +135,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
     if (!window.confirm("Delete this entry? This can't be undone.")) return;
     try {
       await removeShift(initialShift.id);
-      router.push("/");
+      router.push(homeHref);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't delete — try again.");
     }

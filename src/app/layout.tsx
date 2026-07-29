@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import { DEFAULT_THEME, isTheme, THEME_COOKIE } from "@/lib/theme";
-import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -57,7 +56,6 @@ export default async function RootLayout({
             bottom of any tall page (e.g. Settings) ends up genuinely
             unreachable — scrolled as far as it goes, but still behind the
             home indicator. */}
-        <SiteHeader />
         {children}
       </body>
     </html>

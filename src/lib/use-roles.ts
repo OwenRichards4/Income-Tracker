@@ -7,11 +7,11 @@ import {
   updateRole,
   deleteRole,
   type RoleDTO,
-} from "@/app/settings/roles-actions";
+} from "@/app/(app)/settings/roles-actions";
+import { useIsDemoMode } from "./demo/context";
+import { demoRoleActions } from "./demo/actions";
 
 export type Role = RoleDTO;
-
-const KEY = "roles";
 
 interface RoleInput {
   name: string;
@@ -19,12 +19,18 @@ interface RoleInput {
 }
 
 export function useRoles() {
-  const { items: roles, loaded, add, update, remove } = useRemoteList<Role, RoleInput>(KEY, {
-    fetchAll: getRoles,
-    create: ({ name, baseHourlyRate }) => createRole(name, baseHourlyRate),
-    update: (id, { name, baseHourlyRate }) => updateRole(id, name, baseHourlyRate),
-    remove: deleteRole,
-  });
+  const isDemo = useIsDemoMode();
+  const { items: roles, loaded, add, update, remove } = useRemoteList<Role, RoleInput>(
+    isDemo ? "demo-roles" : "roles",
+    isDemo
+      ? demoRoleActions
+      : {
+          fetchAll: getRoles,
+          create: ({ name, baseHourlyRate }) => createRole(name, baseHourlyRate),
+          update: (id, { name, baseHourlyRate }) => updateRole(id, name, baseHourlyRate),
+          remove: deleteRole,
+        },
+  );
 
   return {
     roles,

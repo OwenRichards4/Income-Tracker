@@ -3,8 +3,10 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // Routes usable while signed out. Everything else requires a session, since
 // every page in this app reads/writes the signed-in user's own data — there
-// is nothing for a signed-out visitor to do on them anyway.
-const PUBLIC_PATHS = ["/login", "/auth"];
+// is nothing for a signed-out visitor to do on them anyway. /demo is the
+// exception: it never touches Supabase at all (see src/lib/demo), so it has
+// nothing to gate.
+const PUBLIC_PATHS = ["/login", "/auth", "/demo"];
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));

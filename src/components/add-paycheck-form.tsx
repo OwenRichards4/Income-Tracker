@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { inputClass } from "@/lib/form-styles";
 import { RequiredMark } from "@/components/required-mark";
 import { useWageEntries } from "@/lib/use-wage-entries";
+import { useHomeHref } from "@/lib/demo/context";
 import type { WageEntry } from "@/lib/local-data";
 
 // Purely cosmetic — long enough that the spinner reads as "doing something"
@@ -20,6 +21,7 @@ interface AddPaycheckFormProps {
 export function AddPaycheckForm({ initialEntry }: AddPaycheckFormProps) {
   const isEditing = !!initialEntry;
   const router = useRouter();
+  const homeHref = useHomeHref();
   const { addWageEntry, updateWageEntry, removeWageEntry } = useWageEntries();
 
   // "Check amount" is what actually landed in hand (net pay) — the number
@@ -78,7 +80,7 @@ export function AddPaycheckForm({ initialEntry }: AddPaycheckFormProps) {
       // feel instant/silent — gives the entry a moment to land before it's
       // back in view at the top of Recent entries.
       await new Promise((resolve) => window.setTimeout(resolve, SAVE_REDIRECT_DELAY_MS));
-      router.push("/");
+      router.push(homeHref);
     } catch (err) {
       setSubmitting(false);
       setError(err instanceof Error ? err.message : "Couldn't save — try again.");
@@ -90,7 +92,7 @@ export function AddPaycheckForm({ initialEntry }: AddPaycheckFormProps) {
     if (!window.confirm("Delete this entry? This can't be undone.")) return;
     try {
       await removeWageEntry(initialEntry.id);
-      router.push("/");
+      router.push(homeHref);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't delete — try again.");
     }

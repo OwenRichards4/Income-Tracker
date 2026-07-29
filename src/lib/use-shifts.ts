@@ -7,18 +7,24 @@ import {
   updateShift as updateShiftAction,
   deleteShift,
   type ShiftInput,
-} from "@/app/shifts/actions";
+} from "@/app/(app)/shifts/actions";
 import type { Shift } from "./local-data";
-
-const KEY = "shifts";
+import { useIsDemoMode } from "./demo/context";
+import { demoShiftActions } from "./demo/actions";
 
 export function useShifts() {
-  const { items: shifts, loaded, add, update, remove } = useRemoteList<Shift, ShiftInput>(KEY, {
-    fetchAll: getShifts,
-    create: createShift,
-    update: updateShiftAction,
-    remove: deleteShift,
-  });
+  const isDemo = useIsDemoMode();
+  const { items: shifts, loaded, add, update, remove } = useRemoteList<Shift, ShiftInput>(
+    isDemo ? "demo-shifts" : "shifts",
+    isDemo
+      ? demoShiftActions
+      : {
+          fetchAll: getShifts,
+          create: createShift,
+          update: updateShiftAction,
+          remove: deleteShift,
+        },
+  );
 
   return {
     shifts,

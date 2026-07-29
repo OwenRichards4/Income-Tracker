@@ -6,6 +6,7 @@ import { TriangleAlert } from "lucide-react";
 import { useShifts } from "@/lib/use-shifts";
 import { useWageEntries } from "@/lib/use-wage-entries";
 import { useRoles } from "@/lib/use-roles";
+import { useIsDemoMode } from "@/lib/demo/context";
 import { detectPayrollDiscrepancies } from "@/lib/payroll-discrepancy";
 
 // Validated (scripts/validate_palette.js) against both this app's light and
@@ -23,6 +24,7 @@ function formatShortDate(iso: string): string {
 
 export function PayrollWarning() {
   const router = useRouter();
+  const isDemo = useIsDemoMode();
   const [open, setOpen] = useState(false);
   const [dismissingId, setDismissingId] = useState<string | null>(null);
   const { shifts, loaded: shiftsLoaded } = useShifts();
@@ -81,7 +83,9 @@ export function PayrollWarning() {
                   <button
                     type="button"
                     onClick={() => {
-                      router.push(`/paychecks/${d.wageEntryId}/edit`);
+                      router.push(
+                        `${isDemo ? "/demo" : ""}/paychecks/${d.wageEntryId}/edit`,
+                      );
                       setOpen(false);
                     }}
                     className="min-w-0 flex-1 cursor-pointer px-1 py-1 text-left text-sm"

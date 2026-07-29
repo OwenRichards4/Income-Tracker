@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { deleteAllData } from "@/app/settings/account-actions";
+import { deleteAllData } from "@/app/(app)/settings/account-actions";
 
 export function DeleteAllDataButton() {
   const [confirming, setConfirming] = useState(false);

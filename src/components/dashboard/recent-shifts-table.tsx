@@ -2,6 +2,7 @@
 
 import { GENERAL_SHIFT_LABEL, SHIFT_TYPE_LABELS, type Shift } from "@/lib/local-data";
 import { parseLocalDateString } from "@/lib/shift-entry";
+import { useIsDemoMode } from "@/lib/demo/context";
 import { EntriesTable } from "./entries-table";
 
 interface RecentShiftsTableProps {
@@ -23,12 +24,13 @@ function formatWeekday(iso: string): string {
 }
 
 export function RecentShiftsTable({ shifts }: RecentShiftsTableProps) {
+  const isDemo = useIsDemoMode();
   return (
     <EntriesTable
       items={shifts}
       getKey={(s) => s.id}
       getSortKey={(s) => s.createdAt}
-      getHref={(s) => `/shifts/${s.id}/edit`}
+      getHref={(s) => `${isDemo ? "/demo" : ""}/shifts/${s.id}/edit`}
       getAriaLabel={(s) => `Edit tips entry from ${formatDisplayDate(s.date)}`}
       emptyMessage="No tips logged in this period yet."
       columns={[

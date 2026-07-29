@@ -1,6 +1,7 @@
 "use client";
 
 import type { WageEntry } from "@/lib/local-data";
+import { useIsDemoMode } from "@/lib/demo/context";
 import { EntriesTable } from "./entries-table";
 
 interface RecentPaychecksTableProps {
@@ -16,12 +17,13 @@ function formatDisplayDate(iso: string): string {
 }
 
 export function RecentPaychecksTable({ wageEntries }: RecentPaychecksTableProps) {
+  const isDemo = useIsDemoMode();
   return (
     <EntriesTable
       items={wageEntries}
       getKey={(w) => w.id}
       getSortKey={(w) => w.createdAt}
-      getHref={(w) => `/paychecks/${w.id}/edit`}
+      getHref={(w) => `${isDemo ? "/demo" : ""}/paychecks/${w.id}/edit`}
       getAriaLabel={(w) =>
         `Edit paycheck entry from ${formatDisplayDate(w.periodStart)} to ${formatDisplayDate(w.periodEnd)}`
       }
