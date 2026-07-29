@@ -229,7 +229,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
             type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
-            className={`${inputClass} mt-1.5 min-w-0`}
+            className={`${inputClass} mt-1.5 min-w-0 max-w-full`}
             aria-required="true"
           />
           {weekdayLabel && (

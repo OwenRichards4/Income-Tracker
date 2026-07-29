@@ -168,7 +168,7 @@ export function AddPaycheckForm({ initialEntry }: AddPaycheckFormProps) {
               type="date"
               value={periodStart}
               onChange={(event) => setPeriodStart(event.target.value)}
-              className={`${inputClass} min-w-0`}
+              className={`${inputClass} min-w-0 max-w-full`}
               aria-label="Period start"
               aria-required="true"
             />
@@ -180,7 +180,7 @@ export function AddPaycheckForm({ initialEntry }: AddPaycheckFormProps) {
               type="date"
               value={periodEnd}
               onChange={(event) => setPeriodEnd(event.target.value)}
-              className={`${inputClass} min-w-0`}
+              className={`${inputClass} min-w-0 max-w-full`}
               aria-label="Period end"
               aria-required="true"
             />
