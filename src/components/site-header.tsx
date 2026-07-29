@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Plus, Settings } from "lucide-react";
 import { PayrollWarning } from "@/components/payroll-warning";
+import { ShareQrButton } from "@/components/share-qr-button";
 import { createClient } from "@/lib/supabase/server";
 
 export async function SiteHeader() {
@@ -34,6 +35,7 @@ export async function SiteHeader() {
                 Add Paycheck
               </Link>
               <PayrollWarning />
+              <ShareQrButton />
               <Link
                 href="/settings"
                 aria-label="Settings"
