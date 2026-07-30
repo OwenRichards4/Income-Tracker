@@ -98,12 +98,26 @@ export function Dashboard() {
   // has happened yet, so there's no valid "next" period beyond the present.
   const nextDisabled = period === "all" || (range.end !== null && range.end >= todayISO);
 
+  // Tips-only — feeds Effective rate and the tips charts/tables below,
+  // which are deliberately about tip performance, not overall income.
   const totalTips = sumTips(shifts);
   const tax = estimateTaxOwed({
     totalTips,
     ficaRate: taxSettings.ficaRate,
     estimatedIncomeTaxRate: taxSettings.estimatedIncomeTaxRate,
   });
+
+  // Paychecks add real, already-known numbers on top of the tip estimate:
+  // gross pay for the income total, net pay for take-home (no estimating
+  // needed there — the paycheck already says what actually landed), and
+  // whatever was withheld (gross − net) on top of the tip tax estimate. By
+  // construction, Total income == Take-home + Est. tax owed.
+  const totalGrossWages = wageEntries.reduce((sum, w) => sum + w.grossPay, 0);
+  const totalNetWages = wageEntries.reduce((sum, w) => sum + w.netPay, 0);
+  const totalIncome = totalTips + totalGrossWages;
+  const takeHome = tax.takeHomeEstimate + totalNetWages;
+  const totalTaxBurden = tax.totalOwed + (totalGrossWages - totalNetWages);
+
   const totalHours = shifts.reduce((sum, s) => sum + s.hoursWorked, 0);
   const effectiveRate = totalHours > 0 ? totalTips / totalHours : 0;
 
@@ -111,8 +125,13 @@ export function Dashboard() {
   const prevRange = getPreviousPeriodRange(period, viewDate, WEEK_START_DAY);
   if (prevRange) {
     const prevTips = sumTips(filterShiftsByRange(allShifts, prevRange));
-    if (prevTips > 0) {
-      const changePct = ((totalTips - prevTips) / prevTips) * 100;
+    const prevGrossWages = filterWageEntriesByRange(allWageEntries, prevRange).reduce(
+      (sum, w) => sum + w.grossPay,
+      0,
+    );
+    const prevIncome = prevTips + prevGrossWages;
+    if (prevIncome > 0) {
+      const changePct = ((totalIncome - prevIncome) / prevIncome) * 100;
       delta = {
         direction: changePct > 0.5 ? "up" : changePct < -0.5 ? "down" : "flat",
         label: `${changePct >= 0 ? "+" : ""}${changePct.toFixed(0)}% vs ${PERIOD_NOUN[period]}`,
@@ -186,7 +205,7 @@ export function Dashboard() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <MetricCard
           label="Take-home estimate"
-          value={`$${tax.takeHomeEstimate.toFixed(2)}`}
+          value={`$${takeHome.toFixed(2)}`}
         />
         <MetricCard
           label="Effective rate"
@@ -194,13 +213,13 @@ export function Dashboard() {
         />
         <MetricCard
           label="Total income"
-          value={`$${totalTips.toFixed(2)}`}
+          value={`$${totalIncome.toFixed(2)}`}
           tone="positive"
           delta={delta}
         />
         <MetricCard
           label="Est. tax owed"
-          value={`$${tax.totalOwed.toFixed(2)}`}
+          value={`$${totalTaxBurden.toFixed(2)}`}
           tone="negative"
         />
       </div>

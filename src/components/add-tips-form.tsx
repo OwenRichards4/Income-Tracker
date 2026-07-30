@@ -303,7 +303,7 @@ export function AddTipsForm({ initialShift }: AddTipsFormProps) {
           <span className="font-semibold text-foreground">
             ${(amountNum / totalHours).toFixed(2)}/hr
           </span>{" "}
-          over {totalHours} hr
+          in tips over {totalHours} hour{totalHours === 1 ? "" : "s"}
         </p>
       )}
 
