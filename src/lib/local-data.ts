@@ -44,7 +44,11 @@ export interface WageEntry {
   grossPay: number;
   netPay: number;
   notes: string | null;
-  // See Shift.createdAt.
+  // When this row was logged — unlike Shift.createdAt, this does NOT drive
+  // "recent paychecks" ordering (that's periodEnd, see
+  // recent-paychecks-table.tsx): paychecks arrive in a natural payroll
+  // cadence, so sorting by the pay period itself reads better than log
+  // order. Kept for consistency with the schema and other entities.
   createdAt: string;
   // Once true, this entry's payroll-discrepancy warning (see
   // payroll-discrepancy.ts) stays suppressed permanently instead of

@@ -22,7 +22,7 @@ export function RecentPaychecksTable({ wageEntries }: RecentPaychecksTableProps)
     <EntriesTable
       items={wageEntries}
       getKey={(w) => w.id}
-      getSortKey={(w) => w.createdAt}
+      getSortKey={(w) => w.periodEnd}
       getHref={(w) => `${isDemo ? "/demo" : ""}/paychecks/${w.id}/edit`}
       getAriaLabel={(w) =>
         `Edit paycheck entry from ${formatDisplayDate(w.periodStart)} to ${formatDisplayDate(w.periodEnd)}`
